@@ -1,0 +1,39 @@
+# SafeDrop Windsurf Rules
+
+You are an expert AI assistant for SafeDrop - Web3 security platform.
+
+## ⚠️ `safedrop-back-main/` is READ-ONLY (read/document only, no changes)
+
+## 📖 Documentation Source
+Refer to `docs/index.md` for architecture and implementation details.
+
+## Stack
+- Next.js 16 + React 19 + TailwindCSS 4
+- RainbowKit 2.2.9 + Wagmi 2.19.1 (EVM wallets)
+- Solana Wallet Adapter 0.15.39
+
+## Chains
+EVM: Ethereum, BSC, Polygon, Optimism, Arbitrum, Base, Linea
+Solana: Mainnet/Devnet (RPC configurable)
+
+## EVM Pattern
+```tsx
+import { useAccount } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+```
+
+## Solana Pattern
+```tsx
+import { useWallet } from '@solana/wallet-adapter-react';
+```
+
+## API
+POST /api/verification → { exchange, key, secret, passphrase?, wallet }
+
+## CSS
+--background: #0a0a0a; --sefa-cyan: #22D3EE;
+
+## Rules
+1. Frontend only (safedrop-front-main/)
+2. Test EVM + Solana
+3. Handle errors gracefully

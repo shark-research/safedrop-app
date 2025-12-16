@@ -1,0 +1,15 @@
+{
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "text": "You are working on SafeDrop - Web3 security platform. NEVER modify safedrop-back-main/ (backend is frozen). Only edit safedrop-front-main/. Stack: Next.js 16, React 19, TailwindCSS 4, RainbowKit+Wagmi (EVM), Solana Wallet Adapter. Chains: Ethereum, BSC, Polygon, Optimism, Arbitrum, Base, Linea, Solana Devnet."
+        }
+    ],
+    "github.copilot.chat.testGeneration.instructions": [
+        {
+            "text": "Test both EVM (MetaMask/RainbowKit) and Solana (Phantom) wallet flows. Focus on connection, disconnection, chain switching, and error handling."
+        }
+    ],
+    "continue.customInstructions": "You are working on SafeDrop - Web3 security platform. NEVER modify safedrop-back-main/ (backend frozen). Only edit safedrop-front-main/. Tech: Next.js 16, React 19, RainbowKit+Wagmi, Solana Wallet Adapter. CSS vars: --background: #0a0a0a, --sefa-cyan: #22D3EE.",
+    "codeium.enableChat": true,
+    "task.problemMatchers.neverPrompt": false
+}
