@@ -52,7 +52,7 @@ grep '"next"' package.json
 
 ### Address Display
 
-**Policy Decision:** External avatar services (e.g., boringavatars.com) expose wallet addresses and correlate with IP addresses when browser makes requests. This is a privacy concern, not a security incident.
+**Policy Decision (NOT a vulnerability):** Using external avatar services like boringavatars.com sends wallet addresses to third parties and correlates them with user IPs via browser requests. This is a **privacy policy choice**, not a security incident or CVE.
 
 **Solution:** Local identicon generation (no external requests).
 
@@ -129,18 +129,19 @@ module.exports = {
 
 **Reference:** https://nextjs.org/docs/app/api-reference/next-config-js
 
-> **⚠️ Note:** Config option naming may change between Next.js versions. Verify current name at the reference link above.
+> **⚠️ Note:** `proxyClientMaxBodySize` replaced `middlewareClientMaxBodySize` in Next.js 16 proxy migration. If upgrading, ensure the old parameter is removed. The value 10KB is an example — verify current limits in official docs.
 
-### Middleware Logging Pattern (Corrected)
+### Middleware/Proxy Logging Pattern (Corrected)
 
-**Issue Fixed:** Old docs showed `response.waitUntil()` which doesn't match Next.js middleware signature.
+**Issue Fixed:** Old docs showed `response.waitUntil()` which doesn't match Next.js proxy signature.
 
-**Correct Pattern (Next.js 16):**
+**Correct Pattern (Next.js 16 Proxy):**
 ```typescript
-// next/server middleware signature
-export function middleware(
+// Next.js proxy function signature (NOT middleware)
+// See: https://axiom.co/docs/send-data/nextjs
+export function proxy(
   request: NextRequest,
-  context: { waitUntil: (promise: Promise<any>) => void }
+  event: { waitUntil: (promise: Promise<any>) => void }
 ) {
   // Log event
   logger.info('request', {
@@ -148,13 +149,13 @@ export function middleware(
   });
 
   // Flush logs before response completes
-  context.waitUntil(logger.flush());
+  event.waitUntil(logger.flush());
 
   return NextResponse.next();
 }
 ```
 
-> **⚠️ Verify:** This signature is based on Next.js 16 and Axiom documentation. Always verify the current middleware signature at the official docs below.
+> **⚠️ Important:** The second argument is named `event` in Axiom docs, not `context`. For traditional middleware, verify the current signature at official docs.
 
 **References:**
 - Next.js middleware docs: https://nextjs.org/docs/app/building-your-application/routing/middleware

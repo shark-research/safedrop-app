@@ -288,10 +288,10 @@ import { AlertTriangle } from 'lucide-react';
 // ✅ CORRECT - Phosphor
 import { Warning } from '@phosphor-icons/react';
 
-// ❌ fetch directly
+// ⚠️ Avoid raw fetch for consistency
 const response = await fetch('/api/verification');
 
-// ✅ CORRECT - apiClient (axios)
+// ✅ RECOMMENDED - apiClient (axios) for unified error handling
 const response = await apiClient.post('/api/verification', data);
 
 // ❌ Direct address display
@@ -311,12 +311,12 @@ const response = await apiClient.post('/api/verification', data);
 - [ ] Local identicon generation only
 
 **Icons:**
-- [ ] Phosphor ONLY
-- [ ] NO lucide-react
+- [ ] Phosphor Icons (`@phosphor-icons/react`) - ONLY allowed library
+- [ ] NO lucide-react imports
 
 **API:**
-- [ ] axios (via apiClient)
-- [ ] NO fetch directly
+- [ ] Use `apiClient` (axios) for unified error handling
+- [ ] Raw `fetch` allowed but discouraged for consistency
 - [ ] SSR safe (typeof window check)
 
 **Components:**
