@@ -366,8 +366,8 @@ git ls-tree --name-only -r HEAD | head -20
 ```
 
 **Planned Migration:**
-- Current: `safedrop-front-main/` (editable)
-- Target: `apps/b2c/`, `apps/b2b/` (future)
+- Current: `safedrop-app/` (this repo, editable)
+- Target: `apps/b2c/`, `apps/b2b/` (future monorepo)
 
 **Verify paths exist before importing:**
 ```bash
