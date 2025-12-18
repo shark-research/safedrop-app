@@ -208,7 +208,7 @@ app.enableCors({
 - [ ] Rate limiting: External service selected and configured
 - [ ] Body reading: Size limits documented + tested
 - [ ] JWT tokens: In headers (NOT body parsing)
-- [ ] Logging: Correct middleware signature with context.waitUntil
+- [ ] Logging: Correct proxy/middleware signature with event.waitUntil
 
 **Build & Deploy:**
 - [ ] All dependencies exact versions (NO ^)
