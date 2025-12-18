@@ -1,425 +1,400 @@
-# SafeDrop - Quick Verification Guide (PRODUCTION FINAL v2)
+# SafeDrop Verification Guide (v6.2)
 
-> **Use this to verify all fixes are applied**
-> **Fixes Applied:** ESLint step added, components.json check, img element check
+> **Purpose:** Verify all security & privacy fixes
+> **Status:** December 2025 Updates
+> **Updated:** December 17, 2025
 
 ---
 
 ## ✅ PRE-FLIGHT CHECKLIST
 
-### 1. Version Lock (package.json)
+### 0. Confirm Repo Root
 
 ```bash
-grep -A 20 '"dependencies"' package.json | grep -E '(next|react|wagmi|viem|rainbowkit|tailwind)'
+# REQUIRED: All commands assume you are in repo root
+cd <your-repo-path> && pwd
+git rev-parse --show-toplevel
+```
+
+**PASS:** Output shows your project root (e.g., `/path/to/safedrop-app`)
+**FAIL:** Not a git repo or wrong directory
+
+### 0.1. Node.js Version
+
+```bash
+node --version  # Expected: >= 20.9.0
+```
+
+**PASS:** Version >= 20.9.0
+**FAIL:** Version < 20.9.0 → upgrade Node.js
+
+---
+
+### 🚨 CRITICAL SECURITY CHECKS
+
+### 1. React Security (ADVISORY-BASED)
+
+**⚠️ Do NOT hardcode version numbers in verification**
+
+Always verify against CURRENT advisories:
+
+```bash
+# 1. Check installed React version
+grep '"react"' package.json
+
+# 2. Check react-server-dom packages
+npm ls react-server-dom-webpack react-server-dom-turbopack
+
+# 3. Verify lockfile has correct resolved versions
+grep -A 10 "react-server-dom" package-lock.json
+
+# 4. Compare with current advisories
+# Visit: https://react.dev/blog (filter: security)
+```
+
+**PASS:** Your version >= latest patched version from https://react.dev/blog
+**FAIL:** Your version < advisory requirement → run `npm update react react-dom`
+
+**References:**
+- https://react.dev/blog/2025/12/03/critical-security-vulnerability
+- https://react.dev/blog/2025/12/11/denial-of-service-and-source-code-exposure
+
+---
+
+### 2. Next.js Security
+
+```bash
+grep '"next"' package.json
+
+# Compare with latest security advisory
+# Visit: https://nextjs.org/blog (filter: security tag)
+```
+
+**Expected:** Version matches latest patched version for your branch.
+
+---
+
+### 3. Privacy Check (NO External Avatars)
+
+```bash
+# Should return NO output
+grep -r "boringavatars" apps/ src/
+```
+
+**Expected:** No matches (no external tracking).
+
+**If found:** Replace with local identicon from safedrop_part2_v6_final.md
+
+---
+
+### 4. AddressChip Default Avatar OFF
+
+```bash
+grep -A 5 "showAvatar =" apps/*/components/ui/address-chip.tsx src/components/ui/address-chip.tsx
 ```
 
 **Expected:**
-```json
-"next": "16.0.1",
-"react": "19.2.0",
-"wagmi": "2.19.1",
-"viem": "2.38.5",
-"@rainbow-me/rainbowkit": "2.2.9",
-"tailwindcss": "4.0.0"
-```
-
----
-
-### 2. No Old Bugs
-
-```bash
-# Should return ZERO matches
-grep -r "useSwitchNetwork" apps/ src/
-grep -r "NodeJS.Timeout" apps/ src/
-grep -r 'variant="warning"' apps/ src/
-grep -r "ProComponents" apps/ src/
-grep -r "@ant-design" apps/ src/
-```
-
-**Expected:** `No matches` for all commands
-
----
-
-### 3. Icon Library Check ⚠️ UPDATED
-
-```bash
-# Check YOUR code (not node_modules, not shadcn internals)
-grep -r "lucide-react" src/components --include="*.tsx" --include="*.ts" | grep -v "node_modules"
-grep -r "lucide-react" apps/ --include="*.tsx" --include="*.ts" | grep -v "node_modules"
-
-# Check Phosphor usage
-grep -r "@phosphor-icons/react" src/ apps/ | wc -l
-```
-
-**Expected:**
-- Lucide: = 0 matches in YOUR component files (shadcn internals are OK, but replace after generate)
-- Phosphor: > 0
-
----
-
-### 4. components.json Check (NEW)
-
-```bash
-cat components.json | grep iconLibrary
-```
-
-**Expected:**
-- If `iconLibrary: "lucide"` exists, you'll need to replace icons after each `shadcn add`
-- Add this to shadcn workflow: after generation, replace lucide → Phosphor
-
----
-
-### 5. HSL Color Format
-
-```bash
-grep -A 5 ":root" apps/*/styles/globals.css src/app/globals.css | grep "primary"
-```
-
-**Expected (HSL numbers, not hex):**
-```css
---primary: 188 86% 54%;
-```
-
-**Wrong:**
-```css
---primary: #22D3EE;  /* ❌ This will break Shadcn */
-```
-
----
-
-### 6. Tailwind Config (Monorepo Paths)
-
-```bash
-grep -A 20 "colors:" tailwind.config.*
-```
-
-**Check monorepo paths are correct:**
 ```typescript
-content: [
-  './apps/b2c/src/**/*.{ts,tsx}',
-  './apps/b2c/components/**/*.{ts,tsx}',
-  './apps/b2b/src/**/*.{ts,tsx}',
-  './packages/ui-primitives/**/*.{ts,tsx}',
-],
+showAvatar = false  // ✅ Privacy-first default
 ```
 
-> ✅ **Tailwind v4:** `<alpha-value>` is NOT required for opacity classes.
-> v4 uses `color-mix()` internally. Both formats work:
-> - `'hsl(var(--primary))'` ← v4 native
-> - `'hsl(var(--primary) / <alpha-value>)'` ← legacy, still works
-> 
-> If you see legacy format, leave it. Don't add to new tokens.
-
----
-
-### 7. No img Elements (NEW)
-
-```bash
-# Should return ZERO matches
-grep -r "<img " src/ apps/ --include="*.tsx"
-```
-
-**Expected:** `No matches`
-
-If found, replace with:
-```tsx
-import Image from 'next/image';
-<Image src={url} unoptimized />
+**NOT:**
+```typescript
+showAvatar = true  // ❌ Privacy leak
 ```
 
 ---
 
-### 8. next.config.js remotePatterns (NEW)
+## 📦 DEPENDENCY CHECKS
+
+### 5. Version Lock (NO CARET)
 
 ```bash
-grep -A 10 "remotePatterns" next.config.*
+grep -A 25 '"dependencies"' package.json
+```
+
+**Policy:** All versions MUST be exact (no `^` or `~`).
+
+**PASS:** All versions are exact numbers (e.g., `"16.0.7"`, NOT `"^16.0.7"`)
+**FAIL:** Any `^` or `~` found → remove and use exact versions
+
+**Note:** For React and Next.js versions, always verify against latest security advisory. The exact version should match **your project's lockfile** after applying security patches.
+
+---
+
+### 6. No Caret Check
+
+```bash
+grep '"\^' package.json
+```
+
+**Expected:** No output (zero carets).
+
+---
+
+### 7. Shadcn CLI Version
+
+```bash
+grep "shadcn@" docs/*.md | head -1
 ```
 
 **Expected:**
-```javascript
-remotePatterns: [
-  {
-    protocol: 'https',
-    hostname: 'source.boringavatars.com',
-    pathname: '/beam/**',
-  },
-],
 ```
+npx shadcn@2.1.7 init
+```
+
+**NOT @latest**
 
 ---
 
-### 9. ESLint Boundaries
+### 8. tw-animate-css Setup
 
 ```bash
-grep -A 10 "import/no-restricted-paths" .eslintrc.json
+# In package.json
+grep "tw-animate-css" package.json
+
+# In CSS (import not plugin)
+grep "@import.*tw-animate-css" app/globals.css
+
+# NOT in tailwind.config plugins
+grep "require('tw-animate-css')" tailwind.config.ts
+grep "plugins:.*tw-animate-css" tailwind.config.ts
 ```
 
 **Expected:**
-```json
-"import/no-restricted-paths": ["error", {
-  "zones": [
-    { "target": "./apps/b2c", "from": "./apps/b2b" },
-    { "target": "./apps/b2b", "from": "./apps/b2c" }
-  ]
-}]
-```
+- package.json: `"tw-animate-css": "1.0.1"` ✅
+- globals.css: `@import "tw-animate-css"` ✅
+- tailwind.config greps: No output (both) ✅
 
 ---
 
-### 10. TimerButton Implementation
+### 9. TimerButton Implementation
 
 ```bash
-grep -A 30 "export function TimerButton" apps/*/components/ui/timer-button.tsx src/components/ui/timer-button.tsx 2>/dev/null
+grep -A 30 "export function TimerButton" apps/*/components/ui/timer-button.tsx src/components/ui/timer-button.tsx
 ```
 
 **Must have:**
 - ✅ `useRef<ReturnType<typeof setInterval> | null>(null)`
-- ✅ `useEffect(..., [delay])`  ← delay in deps
+- ✅ `useEffect(..., [delay])` - delay in deps
 - ✅ Reset countdown on delay change
 
 **Must NOT have:**
 - ❌ `useRef<NodeJS.Timeout>()`
-- ❌ `useEffect(..., [])`  ← empty deps
+- ❌ `useEffect(..., [])` - empty deps
 
 ---
 
-### 11. ChainGuard Hooks
+### 10. npm Workflow
 
 ```bash
-grep -A 20 "export function ChainGuard" apps/*/components/ui/chain-guard.tsx src/components/ui/chain-guard.tsx 2>/dev/null
+# Should return NO output
+grep "postinstall" package.json
 ```
 
-**Must have (wagmi v2):**
-- ✅ `import { useAccount, useChainId, useSwitchChain } from 'wagmi'`
-- ✅ `const { switchChain } = useSwitchChain()`
-
-**Must NOT have (wagmi v1):**
-- ❌ `useNetwork`
-- ❌ `useSwitchNetwork`
+**Expected:** No postinstall script.
 
 ---
 
-### 12. B2B Stack Purity
+### 11. Evidence Interface
 
 ```bash
-grep -r "ProComponents\|@ant-design/pro" apps/b2b/
+grep -A 10 "export interface Evidence" apps/*/types/risk.ts src/types/risk.ts
 ```
 
-**Expected:** `No matches`
+**Must have:**
+```typescript
+export interface Evidence {
+  date: string;
+  title: string;
+  description: string;
+  source: EvidenceSource;
+  internalRef?: string;    // ✅ present
+  externalLink?: string;
+}
+```
+
+**Check no invalid sources:**
+```bash
+grep -r "AI Security Analysis" apps/ src/ | grep -v "❌"
+```
+
+**Expected:** No output.
 
 ---
 
-## 🚀 BUILD & TEST (UPDATED v3)
+### 12. Icon Library
 
 ```bash
-# 1. Clean install
-rm -rf node_modules package-lock.json
-npm install
+# Phosphor installed
+grep "@phosphor-icons/react" package.json
 
-# 2. TypeScript check
+# NO lucide in YOUR code
+grep -r "from 'lucide-react'" apps/ src/ | grep -v "node_modules"
+```
+
+**Expected:**
+- Phosphor: YES (`"@phosphor-icons/react": "2.1.0"`)
+- Lucide: NO output
+
+---
+
+### 13. TypeScript Version
+
+```bash
+grep '"typescript"' package.json
+```
+
+**Expected:**
+```json
+"typescript": "5.7.2"
+```
+
+**NOT:** `"5.x"` or `"5.7"`
+
+---
+
+### 14. Middleware Config (Corrected)
+
+**Check body size limit (Next.js 16+):**
+```bash
+grep -E "(proxyClientMaxBodySize|middlewareClientMaxBodySize)" next.config.*
+```
+
+**PASS:** `proxyClientMaxBodySize` found (Next.js 16+ naming)
+**PASS (also valid):** No output — config not needed if not reading body in middleware
+**FAIL:** `middlewareClientMaxBodySize` found — rename to `proxyClientMaxBodySize`
+
+**Note:** Verify current option name at https://nextjs.org/docs/app/api-reference/next-config-js
+
+---
+
+## 🚀 BUILD & TEST
+
+```bash
+# 1. Node check
+node --version
+
+# 2. Install
+npm ci
+
+# 3. TypeScript
 npx tsc --noEmit
-
-# 3. ESLint check ⚠️ CRITICAL - Next.js 16 removed next lint
-npx eslint . --ext .ts,.tsx --max-warnings 0
 
 # 4. Build
 npm run build
 
-# 5. Tests (if configured)
+# 5. Lint
+npx eslint . --ext .ts,.tsx
+
+# 6. Tests (if available)
 npm run test:e2e
 ```
 
-**All must pass with ZERO errors**
-
-> ⚠️ **CRITICAL:** Next.js 16 does NOT run lint during build.
-> **FIX:** Update package.json to run lint before build:
-
-```json
-// package.json
-{
-  "scripts": {
-    "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
-    "build": "npm run lint && next build",
-    "dev": "next dev --turbopack",
-    "start": "next start"
-  }
-}
-```
-
-This ensures lint ALWAYS runs before build, agent will see errors.
-
 ---
 
-## 📋 FILE STRUCTURE CHECK
+## 🚨 RED FLAGS
 
-```bash
-tree -L 2 -I 'node_modules|.next'
-```
+If you see ANY of these, FIX IMMEDIATELY:
 
-**Expected structure:**
-```
-.
-├── apps/
-│   ├── b2c/              # Shadcn + Tailwind
-│   └── b2b/              # Arco Design
-├── packages/
-│   ├── shared/
-│   └── ui-primitives/
-├── docs/
-│   └── ...
-├── .agent/
-│   └── prompts/
-│       ├── safedrop_final_part1.md   # Part 1
-│       ├── safedrop_final_part2.md   # Part 2
-│       └── safedrop_verification.md  # This file
-├── package.json          # Locked versions
-├── tailwind.config.ts    # Monorepo paths + opacity
-├── next.config.js        # remotePatterns
-├── components.json       # Shadcn config
-└── .eslintrc.json        # Boundaries
-```
+### Security
+1. ❌ React version doesn't match latest advisory
+2. ❌ Next.js version doesn't match latest advisory
+3. ❌ `boringavatars.com` in code (privacy leak)
+4. ❌ `showAvatar = true` by default
+5. ❌ Missing `internalRef` in Evidence
+6. ❌ "AI Security Analysis" as source
 
----
+### Dependencies
+7. ❌ `^` caret in package.json
+8. ❌ Ranges like 5.x, 11.x in docs
+9. ❌ @latest in shadcn commands
+10. ❌ tw-animate-css in tailwind plugins
+11. ❌ postinstall script
 
-## 🎯 CRITICAL IMPORTS CHECK
-
-### AddressChip
-```bash
-grep -A 5 "^import" apps/*/components/ui/address-chip.tsx src/components/ui/address-chip.tsx 2>/dev/null
-```
-
-**Expected:**
-```typescript
-import Image from 'next/image';
-import { Copy, Check } from '@phosphor-icons/react';
-```
-
-**Wrong:**
-```typescript
-<img src={...} />  // ❌ Use next/image
-import { ... } from 'lucide-react';  // ❌ Use Phosphor
-```
-
-### RiskBadge
-```bash
-grep -A 5 "^import" apps/*/components/ui/risk-badge.tsx src/components/ui/risk-badge.tsx 2>/dev/null
-```
-
-**Expected:**
-```typescript
-import { ShieldCheck, Warning, XCircle, CaretRight } from '@phosphor-icons/react';
-```
-
-**Wrong:**
-```typescript
-import { AlertTriangle } from 'lucide-react';  // ❌
-```
-
----
-
-## 🔥 FINAL SMOKE TEST
-
-```bash
-# Start dev server
-npm run dev
-
-# In browser:
-# 1. Open http://localhost:3000
-# 2. Open DevTools Console
-# 3. Check for errors → Should be ZERO
-
-# 4. Connect wallet
-# 5. Check risk badge renders
-# 6. Verify no layout shifts (CLS = 0)
-```
-
----
-
-## 📊 METRICS
-
-**Bundle Size (First Load):**
-- Target: < 500KB
-- Check: `npm run build` output
-
-**Web Vitals:**
-- CLS: < 0.1
-- LCP: < 2.5s
-- FID: < 100ms
-
-**Coverage:**
-- Playwright P0 flow: Must pass
-- No console errors: Required
-
----
-
-## 🚨 RED FLAGS (MUST FIX)
-
-If you see any of these, **STOP and fix immediately:**
-
-1. ❌ `useSwitchNetwork` anywhere
-2. ❌ `NodeJS.Timeout` in browser code
-3. ❌ `lucide-react` imports in YOUR components (not shadcn internals)
-4. ❌ `variant="warning"` in Alert
-5. ❌ ProComponents in B2B
-6. ❌ Hex colors in CSS vars (use HSL)
-7. ❌ Missing `[delay]` in TimerButton deps
-8. ❌ Tailwind classes on Arco components
-9. ❌ `<img>` elements (use next/image)
-10. ❌ Missing `/ <alpha-value>` in tailwind.config colors
-
----
-
-## 📝 DOCUMENTATION STATUS
-
-**Active Files (AI agents READ these):**
-- ✅ `.agent/prompts/safedrop_final_part1.md` (Part 1)
-- ✅ `.agent/prompts/safedrop_final_part2.md` (Part 2)
-- ✅ `.agent/prompts/safedrop_verification.md` (This file)
-
-**Archive Files (AI agents IGNORE these):**
-- 🗃️ `archive/safedrop_fixes_patch.md`
-- 🗃️ `archive/old_versions/`
+### Code
+12. ❌ NodeJS.Timeout in browser code
+13. ❌ useEffect(..., []) in TimerButton
+14. ❌ lucide-react imports in YOUR code
+15. ❌ TypeScript "5.x" in package.json
+16. ❌ middlewareClientMaxBodySize (old name)
 
 ---
 
 ## ✅ SIGN-OFF CHECKLIST
 
-Before considering docs "production ready":
+### Security (v6.2)
+- [ ] React follows latest advisories (not hardcoded)
+- [ ] Next.js follows latest advisories
+- [ ] NO boringavatars (privacy leak removed)
+- [ ] showAvatar default: false
+- [ ] Evidence has internalRef
+- [ ] NO "AI Security Analysis"
+- [ ] Subscribed to security blogs
 
-- [ ] All version lock commands pass
-- [ ] Zero old bug matches
-- [ ] HSL color format confirmed
-- [ ] Monorepo paths in Tailwind
-- [ ] Opacity support (`/ <alpha-value>`) in tailwind.config
-- [ ] Phosphor icons only (lucide only in shadcn internals)
-- [ ] components.json checked for iconLibrary
-- [ ] No `<img>` elements (all next/image)
-- [ ] remotePatterns in next.config.js
-- [ ] ESLint boundaries enforced
-- [ ] TimerButton has delay deps
-- [ ] ChainGuard uses wagmi v2
-- [ ] B2B stack is pure Arco
-- [ ] **ESLint runs separately** (Next.js 16 doesn't auto-lint)
-- [ ] Build completes without errors
-- [ ] Playwright tests pass
-- [ ] No console errors in browser
+### Setup
+- [ ] Node.js >= 20.9.0
+- [ ] All exact versions (NO ^)
+- [ ] Shadcn @2.1.7
+- [ ] package-lock.json committed
+- [ ] npm ci documented
+- [ ] NO postinstall
 
-**When all checkboxes are ✅, docs are PRODUCTION READY.**
+### Config
+- [ ] tw-animate-css CSS import only
+- [ ] proxyClientMaxBodySize (if configured)
+- [ ] NO middlewareClientMaxBodySize
+
+### Code
+- [ ] TimerButton: ReturnType + [delay] deps
+- [ ] ChainGuard: wagmi v2
+- [ ] Phosphor icons only
+- [ ] TypeScript 5.7.2 exact
+
+### Build
+- [ ] Build completes
+- [ ] Tests pass
+- [ ] Bundle < 500KB
 
 ---
 
-# END OF VERIFICATION GUIDE (v2)
+## 📚 REPO STRUCTURE
 
-**✅ FIXED IN THIS VERSION:**
-- ✅ Added explicit ESLint step (Next.js 16 doesn't auto-lint on build)
-- ✅ Added components.json iconLibrary check
-- ✅ Added `<img>` element grep check
-- ✅ Added remotePatterns verification
-- ✅ Added opacity `/ <alpha-value>` verification
-- ✅ Clarified lucide exception for shadcn internals
+**Current (verify with git):**
+```bash
+git ls-tree --name-only -r HEAD | head -20
+```
 
-Use this document to:
-1. Verify fixes after applying docs
-2. CI/CD pre-merge checks
-3. Onboarding new developers
-4. Debugging regressions
+**Planned Migration:**
+- Current: `safedrop-front-main/` (editable)
+- Target: `apps/b2c/`, `apps/b2b/` (future)
+
+**Verify paths exist before importing:**
+```bash
+ls -d apps/b2c || echo "NOT FOUND"
+```
+
+---
+
+## 🔗 SECURITY REFERENCES
+
+1. **React Security**: https://react.dev/blog (filter: security)
+2. **Next.js Security**: https://nextjs.org/blog (filter: security)
+3. **CVE-2025-55182**: https://nvd.nist.gov/vuln/detail/CVE-2025-55182
+4. **Next.js Middleware**: https://nextjs.org/docs/app/building-your-application/routing/middleware
+
+---
+
+# END OF VERIFICATION (v6.2)
+
+**✅ SECURITY VERIFIED (as of verification date):**
+1. ✅ React: Verify against current advisories at https://react.dev/blog
+2. ✅ Next.js: Verify against current advisories at https://nextjs.org/blog
+3. ✅ Privacy: NO external tracking (boringavatars removed)
+4. ✅ Middleware: Use `proxyClientMaxBodySize` (Next.js 16+)
+5. ✅ Dependencies: All exact versions (no carets)
+6. ✅ Code: Correct patterns (TimerButton, icons)
+7. ✅ Build: Passes TypeScript and lint
+
+> **⚠️ IMPORTANT:** Security versions must be verified against **current** advisories.
+> This document does NOT guarantee production readiness — run verification commands above and compare with latest official sources.

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link as LinkIcon, CheckCircle2, XCircle, ChevronRight, Activity, Lock, Smartphone, Globe, Key, AlertTriangle, Info, Share2, Edit3, Save, Flame, Sun, Moon, Shield, Zap, ShieldAlert } from 'lucide-react';
 
 // Wallet imports
@@ -9,6 +9,7 @@ import { useAccount, useDisconnect } from "wagmi";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import '@rainbow-me/rainbowkit/styles.css';
+import { AnimatedBeam } from "@/components/ui/animated-beam";
 
 // --- Data: Projects List ---
 const PROJECTS = [
@@ -295,6 +296,10 @@ export default function SafeDropDashboard() {
     const [activeProject, setActiveProject] = useState(PROJECTS[0]);
     const [isDarkMode, setIsDarkMode] = useState(true);
 
+    const containerRef = useRef<HTMLDivElement>(null);
+    const vaultRef = useRef<HTMLDivElement>(null);
+    const burnerRef = useRef<HTMLDivElement>(null);
+
     // Social Verification State
     const [socials, setSocials] = useState({
         exchange: false,
@@ -563,9 +568,9 @@ export default function SafeDropDashboard() {
                             </div>
 
                             {/* Row 1: Wallets */}
-                            <div className={`p-8 flex flex-col md:flex-row items-center justify-between gap-8 relative border-b ${d ? 'border-white/5' : 'border-gray-100'}`}>
+                            <div ref={containerRef} className={`p-8 flex flex-col md:flex-row items-center justify-between gap-8 relative border-b ${d ? 'border-white/5' : 'border-gray-100'}`}>
                                 {/* Vault Wallet */}
-                                <div className={`flex-1 w-full p-6 rounded-2xl text-center relative group ${d
+                                <div ref={vaultRef} className={`z-20 flex-1 w-full p-6 rounded-2xl text-center relative group ${d
                                     ? 'bg-gradient-to-b from-blue-500/10 to-transparent border border-blue-500/20'
                                     : 'bg-gradient-to-b from-blue-50 to-white border border-blue-200 shadow-sm'
                                     }`}>
@@ -583,11 +588,8 @@ export default function SafeDropDashboard() {
                                 </div>
 
                                 {/* Connection Chain */}
-                                <div className="flex flex-col items-center justify-center gap-2 z-10">
-                                    <div className={`h-0.5 w-16 md:w-24 ${isConnected && isBurnerConnected
-                                        ? "bg-gradient-to-r from-blue-500 to-orange-500"
-                                        : d ? "bg-white/10" : "bg-gray-200"
-                                        }`}></div>
+                                <div className="flex flex-col items-center justify-center gap-2 z-20">
+                                    <div className="h-0.5 w-16 md:w-24 opacity-0"></div>
                                     <div className={`p-2 rounded-full border ${isConnected && isBurnerConnected
                                         ? d ? "bg-white/10 border-white/50 text-white" : "bg-gray-100 border-gray-400 text-gray-700"
                                         : d ? "bg-black/40 border-white/10 text-white/20" : "bg-gray-50 border-gray-200 text-gray-300"
@@ -600,7 +602,7 @@ export default function SafeDropDashboard() {
                                 </div>
 
                                 {/* Burner Wallet */}
-                                <div className={`flex-1 w-full p-6 rounded-2xl text-center relative group transition-colors ${d
+                                <div ref={burnerRef} className={`z-20 flex-1 w-full p-6 rounded-2xl text-center relative group transition-colors ${d
                                     ? 'bg-gradient-to-b from-orange-500/10 to-transparent border border-orange-500/20 hover:bg-orange-500/5'
                                     : 'bg-gradient-to-b from-orange-50 to-white border border-orange-200 shadow-sm hover:border-orange-300'
                                     }`}>
@@ -626,6 +628,19 @@ export default function SafeDropDashboard() {
                                             }`}>Waiting...</div>
                                     )}
                                 </div>
+
+                                <AnimatedBeam
+                                    containerRef={containerRef}
+                                    fromRef={burnerRef}
+                                    toRef={vaultRef}
+                                    curvature={0}
+                                    startYOffset={0}
+                                    endYOffset={0}
+                                    pathWidth={2}
+                                    gradientStartColor="#f97316" // Orange
+                                    gradientStopColor="#3b82f6"  // Blue
+                                    pathColor={d ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
+                                />
                             </div>
 
                             {/* Row 2: Social Boosts (Previously Verifications) */}
