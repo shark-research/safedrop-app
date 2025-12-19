@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Logger, Post, UseGuards } from '@nestjs/common';
 import { VerificationService } from './verification.service';
 import { VerificationDto } from './dto/verification.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -11,10 +11,13 @@ import { ConcurrencyGuard } from '../common/guards/concurrency.guard';
 @UseGuards(ApiKeyGuard, InternalNetworkGuard, RateLimitGuard, ConcurrencyGuard)
 @ApiTags('verification')
 export class VerificationController {
-  constructor(private readonly appService: VerificationService) {}
+  private readonly logger = new Logger(VerificationController.name);
+
+  constructor(private readonly appService: VerificationService) { }
 
   @Post()
   verification(@Body() data: VerificationDto) {
+    this.logger.log(`[INCOMING] POST /api/verification - exchange=${data.exchange}`);
     return this.appService.verification(data);
   }
 }

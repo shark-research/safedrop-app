@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { VerificationDto } from './dto/verification.dto';
 import { BinanceService } from '../binance/binance.service';
 import { BingxService } from '../bingx/bingx.service';
@@ -12,6 +12,8 @@ import { OkxService } from '../okx/okx.service';
 
 @Injectable()
 export class VerificationService {
+  private readonly logger = new Logger(VerificationService.name);
+
   constructor(
     private readonly binanceService: BinanceService,
     private readonly bingxService: BingxService,
@@ -22,61 +24,83 @@ export class VerificationService {
     private readonly kucoinService: KucoinService,
     private readonly mexcService: MexcService,
     private readonly okxService: OkxService,
-  ) {}
+  ) { }
 
   async verification(data: VerificationDto) {
-    switch (data.exchange) {
-      case 'binance':
-        return this.binanceService.checkWallet(
-          data.key,
-          data.secret,
-          data.wallet,
-        );
-      case 'bingx':
-        return this.bingxService.checkWallet(
-          data.key,
-          data.secret,
-          data.wallet,
-        );
-      case 'bitget':
-        return this.bitgetService.checkWallet(
-          data.key,
-          data.secret,
-          data.passphrase,
-          data.wallet,
-        );
-      case 'bybit':
-        return this.bybitService.checkWallet(
-          data.key,
-          data.secret,
-          data.wallet,
-        );
-      case 'gate':
-        return this.gateService.checkWallet(data.key, data.secret, data.wallet);
-      case 'kraken':
-        return this.krakenService.checkWallet(
-          data.key,
-          data.secret,
-          data.wallet,
-        );
-      case 'kucoin':
-        return this.kucoinService.checkWallet(
-          data.key,
-          data.secret,
-          data.passphrase,
-          data.wallet,
-        );
-      case 'mexc':
-        return this.mexcService.checkWallet(data.key, data.secret, data.wallet);
-      case 'okx':
-        return this.okxService.checkWallet(
-          data.key,
-          data.secret,
-          data.passphrase,
-          data.wallet,
-        );
-      default:
-        throw new BadRequestException('Unsupported exchange');
+    const maskedKey = data.key ? `${data.key.slice(0, 4)}...${data.key.slice(-4)}` : 'N/A';
+    this.logger.log(`[VERIFICATION REQUEST] exchange=${data.exchange}, wallet=${data.wallet}, key=${maskedKey}`);
+
+    try {
+      let result;
+      switch (data.exchange) {
+        case 'binance':
+          result = await this.binanceService.checkWallet(
+            data.key,
+            data.secret,
+            data.wallet,
+          );
+          break;
+        case 'bingx':
+          result = await this.bingxService.checkWallet(
+            data.key,
+            data.secret,
+            data.wallet,
+          );
+          break;
+        case 'bitget':
+          result = await this.bitgetService.checkWallet(
+            data.key,
+            data.secret,
+            data.passphrase,
+            data.wallet,
+          );
+          break;
+        case 'bybit':
+          result = await this.bybitService.checkWallet(
+            data.key,
+            data.secret,
+            data.wallet,
+          );
+          break;
+        case 'gate':
+          result = await this.gateService.checkWallet(data.key, data.secret, data.wallet);
+          break;
+        case 'kraken':
+          result = await this.krakenService.checkWallet(
+            data.key,
+            data.secret,
+            data.wallet,
+          );
+          break;
+        case 'kucoin':
+          result = await this.kucoinService.checkWallet(
+            data.key,
+            data.secret,
+            data.passphrase,
+            data.wallet,
+          );
+          break;
+        case 'mexc':
+          result = await this.mexcService.checkWallet(data.key, data.secret, data.wallet);
+          break;
+        case 'okx':
+          result = await this.okxService.checkWallet(
+            data.key,
+            data.secret,
+            data.passphrase,
+            data.wallet,
+          );
+          break;
+        default:
+          this.logger.warn(`[VERIFICATION] Unsupported exchange: ${data.exchange}`);
+          throw new BadRequestException('Unsupported exchange');
+      }
+
+      this.logger.log(`[VERIFICATION SUCCESS] exchange=${data.exchange}, found=${result?.found}`);
+      return result;
+    } catch (error) {
+      this.logger.error(`[VERIFICATION ERROR] exchange=${data.exchange}, error=${error.message}`, error.stack);
+      throw error;
     }
   }
 }

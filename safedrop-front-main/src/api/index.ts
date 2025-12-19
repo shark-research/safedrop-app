@@ -13,7 +13,7 @@ type VerificationResponse = {
 };
 
 export async function verify(data: VerificationDto): Promise<VerificationResponse> {
-  const response = await fetch(`${API_BASE_URL}/verification`, {
+  const response = await fetch(`${API_BASE_URL}/api/verification`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

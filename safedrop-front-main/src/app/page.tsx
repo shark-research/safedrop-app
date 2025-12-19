@@ -466,7 +466,7 @@ export default function SafeDropDashboard() {
         setVerificationError(null);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL || ''}/verification`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL || ''}/api/verification`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
