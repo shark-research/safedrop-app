@@ -164,7 +164,8 @@ const SecurityCheckItem = ({ check, status, dark }: SecurityCheckItemProps) => {
         if (isHovered && containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             const spaceAbove = rect.top;
-            const tooltipHeight = 280; // Approximate tooltip height
+            const tooltipHeight = 350; // Tooltip height + extra margin
+            // Show below if not enough space above
             setShowAbove(spaceAbove > tooltipHeight);
         }
     }, [isHovered]);
