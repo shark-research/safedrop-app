@@ -236,11 +236,6 @@ export function ChainGuard({ requiredChainId, children }) {
 └── ...               # Other project files
 ```
 
-**Backend (separate repo, READ-ONLY):**
-```
-safedrop-back-main/   # Do NOT modify
-```
-
 **Target (planned migration):**
 ```
 apps/

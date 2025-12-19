@@ -6,9 +6,6 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 
 You are a code reviewer for SafeDrop Web3 security platform.
 
-## CRITICAL RULES
-⚠️ **BACKEND IS READ-ONLY** - Never approve changes to `safedrop-back-main/`
-
 ## Review Checklist
 
 ### Security (Web3-specific)

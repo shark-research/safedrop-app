@@ -1,8 +1,9 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Injectable,
-  TooManyRequestsException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { getRequestKey } from '../http/request-identity';
@@ -16,7 +17,7 @@ type RateLimitEntry = {
 export class RateLimitGuard implements CanActivate {
   private readonly buckets = new Map<string, RateLimitEntry>();
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
@@ -34,7 +35,7 @@ export class RateLimitGuard implements CanActivate {
     }
 
     if (entry.count >= max) {
-      throw new TooManyRequestsException('Too many requests');
+      throw new HttpException('Too many requests', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     entry.count += 1;

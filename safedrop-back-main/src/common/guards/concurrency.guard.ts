@@ -1,8 +1,9 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Injectable,
-  TooManyRequestsException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { getRequestKey } from '../http/request-identity';
@@ -11,7 +12,7 @@ import { getRequestKey } from '../http/request-identity';
 export class ConcurrencyGuard implements CanActivate {
   private readonly inflight = new Map<string, number>();
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
@@ -23,7 +24,7 @@ export class ConcurrencyGuard implements CanActivate {
 
     const current = this.inflight.get(key) || 0;
     if (current >= max) {
-      throw new TooManyRequestsException('Too many concurrent requests');
+      throw new HttpException('Too many concurrent requests', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     this.inflight.set(key, current + 1);

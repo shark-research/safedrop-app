@@ -12,7 +12,8 @@ async function bootstrap() {
   app.use(json({ limit: bodyLimit }));
 
   if (process.env.TRUST_PROXY === 'true') {
-    app.set('trust proxy', true);
+    const expressApp = app.getHttpAdapter().getInstance();
+    expressApp.set('trust proxy', true);
   }
 
   app.useGlobalPipes(

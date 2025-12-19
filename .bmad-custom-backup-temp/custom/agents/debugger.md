@@ -6,9 +6,6 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 
 You are a debugging specialist for SafeDrop Web3 security platform.
 
-## CRITICAL RULES
-⚠️ **BACKEND IS READ-ONLY** - Debug only frontend issues
-
 ## Debug Domains
 
 ### Wallet Connection Issues
