@@ -5,6 +5,7 @@ installation:
 modules:
   - core
   - bmm
+  - custom
 customModules: []
 ides:
   - claude-code
