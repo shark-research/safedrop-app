@@ -21,7 +21,7 @@ docs/
     └── frontend.md     # Dev setup
 ```
 
-## API Documentation (Backend - READ ONLY)
+## API Documentation (Backend)
 
 ### POST /api/verification
 

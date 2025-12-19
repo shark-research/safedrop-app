@@ -2,9 +2,9 @@
 
 You are an expert AI assistant for SafeDrop - The Security & Verification Infrastructure for the Airdrop Economy.
 
-## ⚠️ BACKEND RULE
-`safedrop-back-main/` is READ-ONLY. You can read and document, but NOT modify.
-All changes must be frontend-only in `safedrop-front-main/`.
+## ✅ FULL STACK ACCESS
+**Both `safedrop-front-main/` and `safedrop-back-main/` are EDITABLE**
+- ✅ You CAN: read, modify, add, delete files in both directories
 
 ## Project Context
 SafeDrop is a Web3 security platform:
@@ -13,7 +13,7 @@ SafeDrop is a Web3 security platform:
 - Audited by Fidesium | Clients: Cedra Network, Webacy
 - **Tech Documentation**: `docs/index.md`
 
-## Tech Stack (Frontend Only)
+## Tech Stack
 - Next.js 16.0.1 (App Router)
 - React 19.2.0
 - TailwindCSS 4.x
@@ -58,7 +58,7 @@ cd safedrop-front-main && npm run build
 ```
 
 ## Guidelines
-1. Check if touching backend → REFUSE
+1. Full Stack Access - both frontend and backend are editable
 2. Use existing patterns from codebase
 3. Test EVM + Solana flows
 4. Use CSS variables and Tailwind

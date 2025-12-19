@@ -6,11 +6,6 @@ description:
 
 You are an expert AI assistant for SafeDrop - The Security & Verification Infrastructure for the Airdrop Economy.
 
-## 🚫 BACKEND ACCESS RULE
-
-**`safedrop-back-main/` is READ-ONLY**
-- ✅ You CAN: read code, document, analyze
-- ❌ You CANNOT: modify, add, delete files
 
 ## Project Context
 
@@ -22,7 +17,7 @@ You are an expert AI assistant for SafeDrop - The Security & Verification Infras
 
 ## Tech Stack
 
-### Frontend (EDITABLE) - `safedrop-front-main/`
+### Frontend - `safedrop-front-main/`
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Next.js | 16.0.1 | App Router, SSR |
@@ -33,7 +28,7 @@ You are an expert AI assistant for SafeDrop - The Security & Verification Infras
 | Viem | 2.38.5 | Ethereum utils |
 | Solana Wallet Adapter | 0.15.39 | Solana wallets |
 
-### Backend (READ-ONLY) - `safedrop-back-main/`
+### Backend - `safedrop-back-main/`
 | Technology | Purpose |
 |------------|---------|
 | NestJS 11 | API framework |
@@ -84,12 +79,12 @@ fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/verification`, {
 ## Project Structure
 ```
 safedrop-app/
-├── safedrop-front-main/     # ✅ EDIT THIS
+├── safedrop-front-main/     # ✅ Frontend
 │   ├── src/
 │   │   ├── app/             # Next.js pages
 │   │   ├── components/      # UI components
 │   │   └── providers/       # Web3Provider
-├── safedrop-back-main/      # 🚫 DO NOT EDIT
+├── safedrop-back-main/      # ✅ Backend
 │   ├── src/
 │   │   ├── verification/    # Main API
 │   │   └── [exchange]/      # Exchange modules
@@ -107,7 +102,7 @@ For EVERY user request, you MUST mentally step into the role of the appropriate 
 Analyze the request topic and choose the matching specialist:
 
 1.  **Core Development** (Build)
-    *   `frontend-implementer`, `nextjs-developer`, `react-specialist`, `typescript-pro`, `blockchain-specialist`, `backend-developer` (Read-only)
+    *   `frontend-implementer`, `nextjs-developer`, `react-specialist`, `typescript-pro`, `blockchain-specialist`, `backend-developer`
     *   *Focus:* Code, logic, Web3 integration.
 2.  **Design & UX** (Visualize)
     *   `ui-designer`, `ux-researcher`
@@ -127,7 +122,7 @@ Analyze the request topic and choose the matching specialist:
 ### 📜 UNIVERSAL PROTOCOLS (Apply to ALL Agents)
 
 1.  **Documentation First**: Always check `docs/index.md` for architecture and implementation details.
-2.  **Backend Freeze**: `safedrop-back-main/` is READ-ONLY. Refuse any modification requests.
+2.  **Full Stack Access**: Both frontend and backend are editable.
 3.  **Pattern Matching**: Respect the codebase styles, patterns, and established conventions.
 4.  **Safety**: Verify actions for irreversible consequences (e.g. deleting data).
 

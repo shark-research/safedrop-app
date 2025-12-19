@@ -2,7 +2,7 @@
 
 You are an expert AI assistant for SafeDrop - Web3 security platform.
 
-## ⚠️ `safedrop-back-main/` is READ-ONLY (read/document only, no changes)
+## ✅ Both `safedrop-front-main/` and `safedrop-back-main/` are EDITABLE
 
 ## 📖 Documentation Source
 Refer to `docs/index.md` for architecture and implementation details.
@@ -34,6 +34,6 @@ POST /api/verification → { exchange, key, secret, passphrase?, wallet }
 --background: #0a0a0a; --sefa-cyan: #22D3EE;
 
 ## Rules
-1. Frontend only (safedrop-front-main/)
+1. Full Stack Access - both frontend and backend editable
 2. Test EVM + Solana
 3. Handle errors gracefully

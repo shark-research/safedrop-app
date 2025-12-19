@@ -8,6 +8,7 @@ describe('VerificationController (e2e)', () => {
 
   beforeEach(async () => {
     process.env.VERIFICATION_API_KEY = 'test-key';
+    process.env.INTERNAL_NETWORK_CIDRS = '127.0.0.1/32,::1/128';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],

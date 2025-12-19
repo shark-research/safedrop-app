@@ -4,8 +4,8 @@ description: Workflow для исправления багов в SafeDrop
 
 # SafeDrop Bug Fix Workflow
 
-## ⚠️ CRITICAL RULE
-**NEVER MODIFY BACKEND** - Баги бэкенда эскалируй!
+## CRITICAL RULE
+Backend is EDITABLE. Fix backend issues when they are the root cause; keep changes minimal and scoped.
 
 ## 1. Reproduce
 Используй агента: `@debugger`

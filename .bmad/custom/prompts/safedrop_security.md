@@ -165,13 +165,13 @@ export function proxy(
 
 ---
 
-## 🛡️ BACKEND SECURITY (READ-ONLY)
+## 🛡️ BACKEND SECURITY
 
 ### CORS Configuration
 
-**⚠️ Backend is READ-ONLY**: Verify only, do NOT modify.
+**✅ Backend is now EDITABLE**: You can modify frontend and backend code.
 
-**Current config (verify, DO NOT CHANGE):**
+**Current config (can be modified):**
 ```typescript
 // safedrop-back-main/src/main.ts
 app.enableCors({
@@ -190,7 +190,7 @@ app.enableCors({
 });
 ```
 
-**If issues found:** Report to backend team, do NOT modify directly.
+**If issues found:** Fix directly or coordinate with backend team.
 
 ---
 
@@ -219,11 +219,11 @@ app.enableCors({
 - [ ] NO postinstall scripts
 - [ ] TypeScript strict mode
 
-### Backend (Read-Only, Verify Only)
+### Backend (Editable)
 
-- [ ] NO custom modifications
-- [ ] CORS config verified
-- [ ] Exchange modules unchanged
+- [ ] Modifications follow NestJS patterns
+- [ ] CORS config correct
+- [ ] Exchange modules maintained
 - [ ] Audit status: Valid
 
 ---

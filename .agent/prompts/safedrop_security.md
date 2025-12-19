@@ -165,13 +165,13 @@ export function proxy(
 
 ---
 
-## 🛡️ BACKEND SECURITY (READ-ONLY)
+## BACKEND SECURITY (EDITABLE)
 
 ### CORS Configuration
 
-**⚠️ Backend is READ-ONLY**: Verify only, do NOT modify.
+**⚠️ Backend is EDITABLE**: Verify and update as needed.
 
-**Current config (verify, DO NOT CHANGE):**
+**Current config (verify and update if needed):**
 ```typescript
 // safedrop-back-main/src/main.ts
 app.enableCors({
@@ -190,7 +190,7 @@ app.enableCors({
 });
 ```
 
-**If issues found:** Report to backend team, do NOT modify directly.
+**If issues found:** Propose and implement changes with care.
 
 ---
 
@@ -219,11 +219,11 @@ app.enableCors({
 - [ ] NO postinstall scripts
 - [ ] TypeScript strict mode
 
-### Backend (Read-Only, Verify Only)
+### Backend (Editable)
 
-- [ ] NO custom modifications
+- [ ] Changes documented
 - [ ] CORS config verified
-- [ ] Exchange modules unchanged
+- [ ] Exchange modules updated safely
 - [ ] Audit status: Valid
 
 ---

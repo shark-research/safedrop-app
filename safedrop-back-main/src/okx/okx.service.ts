@@ -50,7 +50,6 @@ export class OkxService {
 
     this.logger.log(`Timestamp: ${timestamp}`);
     this.logger.log(`Request: ${method} ${requestPath}`);
-    this.logger.log(`API Key: ${apiKey.slice(0, 8)}...`);
 
     try {
       const response = await fetchWithTimeout(`${this.OKX_API_URL}${requestPath}`, {

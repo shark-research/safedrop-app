@@ -13,6 +13,10 @@ import { MexcModule } from '../mexc/mexc.module';
 import { OkxModule } from '../okx/okx.module';
 import { ApiKeyGuard } from '../common/guards/api-key.guard';
 import { RateLimitGuard } from '../common/guards/rate-limit.guard';
+import { InternalNetworkGuard } from '../common/guards/internal-network.guard';
+import { ConcurrencyGuard } from '../common/guards/concurrency.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { PublicVerificationController } from './public-verification.controller';
 
 @Module({
   imports: [
@@ -27,7 +31,14 @@ import { RateLimitGuard } from '../common/guards/rate-limit.guard';
     MexcModule,
     OkxModule,
   ],
-  controllers: [VerificationController],
-  providers: [VerificationService, ApiKeyGuard, RateLimitGuard],
+  controllers: [VerificationController, PublicVerificationController],
+  providers: [
+    VerificationService,
+    ApiKeyGuard,
+    RateLimitGuard,
+    InternalNetworkGuard,
+    ConcurrencyGuard,
+    JwtAuthGuard,
+  ],
 })
 export class VerificationModule {}

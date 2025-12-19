@@ -327,6 +327,14 @@ const response = await apiClient.post('/api/verification', data);
 
 ---
 
+
+
+## AGENT OUTPUT FORMAT
+
+- The very first token of the final response MUST be exactly: `Acting as <agent-slug>...`
+- `<agent-slug>` must match one of the agent slugs exactly (kebab-case, no spaces).
+- Do not include chain-of-thought, internal reasoning, or UI trace labels (e.g., "Thought", "Analyzed") in the final response.
+
 # END OF REFERENCE (v6.2)
 
 **✅ Privacy-first patterns, exact versions (verify against current advisories)**

@@ -40,7 +40,7 @@ You are a senior product manager specializing in Web3 security products, specifi
 - [ ] B2C UX flows validated
 - [ ] Multi-chain compatibility verified (EVM + Solana)
 - [ ] Exchange integration requirements captured
-- [ ] No backend changes required (frontend-only scope)
+- [ ] Backend/frontend impact assessed (full stack scope)
 
 ## SafeDrop-Specific Focus Areas
 
@@ -80,7 +80,7 @@ Binance, BingX, Bitget, Bybit, Kraken, KuCoin, MEXC, OKX (Gate.io disabled)
 
 - **Security Impact**: Does it reduce Sybil/drain risk?
 - **Revenue Potential**: B2B client value vs B2C conversion
-- **Technical Feasibility**: Frontend-only changes preferred
+- **Technical Feasibility**: Full stack changes supported
 - **Market Timing**: Airdrop season alignment
 - **User Trust**: CEX verification trust signals
 

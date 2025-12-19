@@ -236,9 +236,9 @@ export function ChainGuard({ requiredChainId, children }) {
 └── ...               # Other project files
 ```
 
-**Backend (separate repo, READ-ONLY):**
+**Backend (separate repo, editable):**
 ```
-safedrop-back-main/   # Do NOT modify
+safedrop-back-main/   # Editable
 ```
 
 **Target (planned migration):**
@@ -254,7 +254,7 @@ packages/
 **Migration Path:**
 - Verify target paths exist before importing: `ls -d apps/b2c || echo "NOT FOUND - use current structure"`
 - Update import paths during transition
-- Keep backend separate (READ-ONLY)
+- Keep backend separate (editable)
 
 ## ESLint Boundaries
 

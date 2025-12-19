@@ -5,6 +5,7 @@ import {
   TooManyRequestsException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { getRequestKey } from '../http/request-identity';
 
 type RateLimitEntry = {
   count: number;
@@ -23,7 +24,8 @@ export class RateLimitGuard implements CanActivate {
     const windowMs =
       Number(this.configService.get('RATE_LIMIT_WINDOW_MS')) || 60000;
     const max = Number(this.configService.get('RATE_LIMIT_MAX')) || 30;
-    const key = this.getClientKey(request);
+    const trustProxy = this.configService.get('TRUST_PROXY') === 'true';
+    const key = getRequestKey(request, trustProxy);
 
     const entry = this.buckets.get(key);
     if (!entry || now > entry.resetAt) {
@@ -37,15 +39,5 @@ export class RateLimitGuard implements CanActivate {
 
     entry.count += 1;
     return true;
-  }
-
-  private getClientKey(request: any): string {
-    const forwarded = request.headers['x-forwarded-for'];
-    const header = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-    if (typeof header === 'string' && header.length > 0) {
-      return header.split(',')[0].trim();
-    }
-
-    return request.ip || request.socket?.remoteAddress || 'unknown';
   }
 }

@@ -1,7 +1,8 @@
 # SafeDrop AI Agents
 
-## ⚠️ BACKEND RULE
-`safedrop-back-main/` is **READ-ONLY** — read and document only, no modifications.
+## FULL STACK ACCESS
+
+Both `safedrop-front-main/` and `safedrop-back-main/` are **EDITABLE**.
 
 ## 20 Available Agents
 
@@ -9,7 +10,7 @@
 | Agent | Role | Status |
 |-------|------|--------|
 | `frontend-implementer` | Next.js/React code | ✅ Active |
-| `backend-developer` | NestJS code | ⏸️ Read only |
+| `backend-developer` | NestJS code | Active |
 | `nextjs-developer` | Next.js 16 specifics | ✅ Active |
 | `react-specialist` | React 19 patterns | ✅ Active |
 | `typescript-pro` | TypeScript types | ✅ Active |

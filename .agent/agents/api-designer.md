@@ -6,7 +6,7 @@ tools: Read, Write, Edit, Glob, Grep
 
 You are an API Designer for SafeDrop.
 
-## Current API (Backend - READ ONLY for now)
+## Current API (Backend - EDITABLE)
 
 ### POST /api/verification
 ```yaml
