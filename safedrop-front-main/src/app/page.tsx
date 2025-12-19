@@ -895,7 +895,7 @@ export default function SafeDropDashboard() {
                                     <h3 className={`text-2xl font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>Referral Program</h3>
                                     <div className="relative group/tier">
                                         <Info className={`w-4 h-4 cursor-help ${d ? 'text-white/40 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'}`} />
-                                        <div className={`absolute left-full ml-3 top-1/2 -translate-y-1/2 w-80 p-4 rounded-xl shadow-xl z-[100] opacity-0 pointer-events-none group-hover/tier:opacity-100 group-hover/tier:pointer-events-auto transition-opacity ${d ? 'bg-[#1a1b1f] border border-white/10' : 'bg-white border border-gray-200'}`}>
+                                        <div className={`absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-80 p-4 rounded-xl shadow-xl z-[100] opacity-0 pointer-events-none group-hover/tier:opacity-100 group-hover/tier:pointer-events-auto transition-opacity ${d ? 'bg-[#1a1b1f] border border-white/10' : 'bg-white border border-gray-200'}`}>
                                             <div className={`text-sm font-bold mb-3 ${d ? 'text-white' : 'text-gray-900'}`}>Lifetime Accumulation</div>
                                             <div className="space-y-2.5 text-sm">
                                                 <div className={d ? 'text-white/70' : 'text-gray-600'}>
