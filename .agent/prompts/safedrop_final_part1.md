@@ -7,7 +7,7 @@
 
 ---
 
-## ??"< TABLE OF CONTENTS
+## TABLE OF CONTENTS
 
 - [VERSION_LOCK.md](#version-lock) - Exact dependency versions + SECURITY FIXES
 - [SETUP_GUIDE.md](#setup-guide) - Installation steps
@@ -20,7 +20,7 @@
 <a name="version-lock"></a>
 # 1. VERSION_LOCK.md
 
-## ??"' EXACT VERSIONS (NO CARET, NO RANGES)
+## EXACT VERSIONS (NO CARET, NO RANGES)
 
 **Policy:** All versions MUST be EXACT. NO `^` NO `~` NO ranges.
 
@@ -80,11 +80,11 @@
 
 ---
 
-## ???? CRITICAL SECURITY (December 2025)
+## CRITICAL SECURITY (December 2025)
 
 ### React Server Components Security
 
-**?????? IMPORTANT**: Follow https://react.dev/blog for latest advisories.
+**IMPORTANT**: Follow https://react.dev/blog for latest advisories.
 
 **Verification:**
 ```bash
@@ -123,7 +123,7 @@ If service was running while vulnerable:
 <a name="setup-guide"></a>
 # 2. SETUP_GUIDE.md
 
-## ???? INITIAL SETUP
+## INITIAL SETUP
 
 ### Prerequisites
 
@@ -223,10 +223,10 @@ export default {
 **POLICY:** Phosphor ONLY. Lucide FORBIDDEN.
 
 ```tsx
-// ??: CORRECT
+// CORRECT
 import { Warning } from '@phosphor-icons/react'
 
-// ??? WRONG
+// WRONG
 import { AlertTriangle } from 'lucide-react'
 ```
 

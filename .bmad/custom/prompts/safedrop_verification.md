@@ -115,8 +115,8 @@ grep -A 25 '"dependencies"' package.json
 
 **Policy:** All versions MUST be exact (no `^` or `~`).
 
-**PASS:** All versions are exact numbers (e.g., `"16.0.7"`, NOT `"^16.0.7"`)
-**FAIL:** Any `^` or `~` found → remove and use exact versions
+**PASS:** All versions are exact (e.g., `"1.2.3"`, NOT `"^1.2.3"`) - use your lockfile values
+**FAIL:** Any `^` or `~` found - remove and use exact versions
 
 **Note:** For React and Next.js versions, always verify against latest security advisory. The exact version should match **your project's lockfile** after applying security patches.
 
@@ -162,9 +162,9 @@ grep "plugins:.*tw-animate-css" tailwind.config.ts
 ```
 
 **Expected:**
-- package.json: `"tw-animate-css": "1.0.1"` ✅
-- globals.css: `@import "tw-animate-css"` ✅
-- tailwind.config greps: No output (both) ✅
+- package.json: `"tw-animate-css": "<PINNED_VERSION>"`
+- globals.css: `@import "tw-animate-css"`
+- tailwind.config greps: No output (both)
 
 ---
 
@@ -234,7 +234,7 @@ grep -r "from 'lucide-react'" apps/ src/ | grep -v "node_modules"
 ```
 
 **Expected:**
-- Phosphor: YES (`"@phosphor-icons/react": "2.1.0"`)
+- Phosphor: YES (`"@phosphor-icons/react"` pinned exact)
 - Lucide: NO output
 
 ---
@@ -247,7 +247,7 @@ grep '"typescript"' package.json
 
 **Expected:**
 ```json
-"typescript": "5.7.2"
+"typescript": "<PINNED_VERSION>"
 ```
 
 **NOT:** `"5.x"` or `"5.7"`
@@ -335,7 +335,7 @@ If you see ANY of these, FIX IMMEDIATELY:
 ### Setup
 - [ ] Node.js >= 20.9.0
 - [ ] All exact versions (NO ^)
-- [ ] Shadcn @2.1.7
+- [ ] Shadcn @2.1.7 (pinned)
 - [ ] package-lock.json committed
 - [ ] npm ci documented
 - [ ] NO postinstall
@@ -349,7 +349,7 @@ If you see ANY of these, FIX IMMEDIATELY:
 - [ ] TimerButton: ReturnType + [delay] deps
 - [ ] ChainGuard: wagmi v2
 - [ ] Phosphor icons only
-- [ ] TypeScript 5.7.2 exact
+- [ ] TypeScript exact (pinned, no ranges)
 
 ### Build
 - [ ] Build completes
