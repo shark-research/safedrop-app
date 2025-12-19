@@ -7,7 +7,7 @@
 
 ---
 
-## 📋 TABLE OF CONTENTS
+## ??"< TABLE OF CONTENTS
 
 - [VERSION_LOCK.md](#version-lock) - Exact dependency versions + SECURITY FIXES
 - [SETUP_GUIDE.md](#setup-guide) - Installation steps
@@ -20,18 +20,18 @@
 <a name="version-lock"></a>
 # 1. VERSION_LOCK.md
 
-## 🔒 EXACT VERSIONS (NO CARET, NO RANGES)
+## ??"' EXACT VERSIONS (NO CARET, NO RANGES)
 
 **Policy:** All versions MUST be EXACT. NO `^` NO `~` NO ranges.
 
-> **⚠️ Note:** The versions below are examples from December 2025. For React and Next.js, always verify against latest security advisories at https://react.dev/blog and https://nextjs.org/blog before deployment.
+> **Note:** The versions below are placeholders. Replace them with exact values from your lockfile, and verify React/Next.js patches against https://react.dev/blog and https://nextjs.org/blog before deployment.
 
 ### package.json (Example)
 
 ```json
 {
   "name": "safedrop",
-  "version": "0.1.0",
+  "version": "<APP_VERSION>",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -41,37 +41,37 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "next": "16.0.7",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
-    "typescript": "5.7.2",
-    "wagmi": "2.19.1",
-    "viem": "2.38.5",
-    "@rainbow-me/rainbowkit": "2.2.9",
-    "tailwindcss": "4.0.0",
-    "@arco-design/web-react": "2.64.1",
-    "tw-animate-css": "1.0.1",
-    "@phosphor-icons/react": "2.1.0",
-    "framer-motion": "11.15.0",
-    "@tanstack/react-query": "5.39.0",
-    "@tanstack/react-table": "8.20.5",
-    "axios": "1.7.7",
-    "echarts": "5.5.1",
-    "@antv/g6": "5.3.0",
-    "sonner": "1.7.1",
-    "vaul": "1.1.1",
-    "cmdk": "1.0.4",
-    "react-hook-form": "7.54.2",
-    "zod": "3.24.1"
+    "next": "<PINNED_VERSION>",
+    "react": "<PINNED_VERSION>",
+    "react-dom": "<PINNED_VERSION>",
+    "typescript": "<PINNED_VERSION>",
+    "wagmi": "<PINNED_VERSION>",
+    "viem": "<PINNED_VERSION>",
+    "@rainbow-me/rainbowkit": "<PINNED_VERSION>",
+    "tailwindcss": "<PINNED_VERSION>",
+    "@arco-design/web-react": "<PINNED_VERSION>",
+    "tw-animate-css": "<PINNED_VERSION>",
+    "@phosphor-icons/react": "<PINNED_VERSION>",
+    "framer-motion": "<PINNED_VERSION>",
+    "@tanstack/react-query": "<PINNED_VERSION>",
+    "@tanstack/react-table": "<PINNED_VERSION>",
+    "axios": "<PINNED_VERSION>",
+    "echarts": "<PINNED_VERSION>",
+    "@antv/g6": "<PINNED_VERSION>",
+    "sonner": "<PINNED_VERSION>",
+    "vaul": "<PINNED_VERSION>",
+    "cmdk": "<PINNED_VERSION>",
+    "react-hook-form": "<PINNED_VERSION>",
+    "zod": "<PINNED_VERSION>"
   },
   "devDependencies": {
-    "@types/node": "22.10.2",
-    "@types/react": "19.0.2",
-    "@types/react-dom": "19.0.2",
-    "eslint": "9.17.0",
-    "eslint-config-next": "16.0.7",
-    "@playwright/test": "1.49.1",
-    "eslint-plugin-import": "2.31.0"
+    "@types/node": "<PINNED_VERSION>",
+    "@types/react": "<PINNED_VERSION>",
+    "@types/react-dom": "<PINNED_VERSION>",
+    "eslint": "<PINNED_VERSION>",
+    "eslint-config-next": "<PINNED_VERSION>",
+    "@playwright/test": "<PINNED_VERSION>",
+    "eslint-plugin-import": "<PINNED_VERSION>"
   }
 }
 ```
@@ -80,11 +80,11 @@
 
 ---
 
-## 🚨 CRITICAL SECURITY (December 2025)
+## ???? CRITICAL SECURITY (December 2025)
 
 ### React Server Components Security
 
-**⚠️ IMPORTANT**: Follow https://react.dev/blog for latest advisories.
+**?????? IMPORTANT**: Follow https://react.dev/blog for latest advisories.
 
 **Verification:**
 ```bash
@@ -123,7 +123,7 @@ If service was running while vulnerable:
 <a name="setup-guide"></a>
 # 2. SETUP_GUIDE.md
 
-## 🚀 INITIAL SETUP
+## ???? INITIAL SETUP
 
 ### Prerequisites
 
@@ -223,10 +223,10 @@ export default {
 **POLICY:** Phosphor ONLY. Lucide FORBIDDEN.
 
 ```tsx
-// ✅ CORRECT
+// ??: CORRECT
 import { Warning } from '@phosphor-icons/react'
 
-// ❌ WRONG
+// ??? WRONG
 import { AlertTriangle } from 'lucide-react'
 ```
 
@@ -290,4 +290,4 @@ export function TimerButton({
 
 # END OF PART 1 (v6.2)
 
-> **⚠️ Security versions:** Always verify React/Next.js versions against current advisories before deployment. Versions in this document are examples, not mandates.
+> **Security versions:** Always verify React/Next.js versions against current advisories before deployment. Version placeholders in this document must be replaced with patched versions from official advisories and your lockfile.

@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class VerificationDto {
@@ -38,12 +38,13 @@ export class VerificationDto {
   })
   wallet: string;
 
+  @IsOptional()
   @IsString()
   @ApiProperty({
-    description: 'passphrase',
+    description: 'passphrase (required for OKX, KuCoin, Bitget)',
     example: '123456',
-    required: true,
+    required: false,
     type: String,
   })
-  passphrase: string;
+  passphrase?: string;
 }

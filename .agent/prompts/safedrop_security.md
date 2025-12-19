@@ -129,6 +129,8 @@ module.exports = {
 
 **Reference:** https://nextjs.org/docs/app/api-reference/next-config-js
 
+**Migration:** https://nextjs.org/docs/app/building-your-application/upgrading (official migration entry point; verify proxy/middleware option rename)
+
 > **⚠️ Note:** `proxyClientMaxBodySize` replaced `middlewareClientMaxBodySize` in Next.js 16 proxy migration. If upgrading, ensure the old parameter is removed. The value 10KB is an example — verify current limits in official docs.
 
 ### Middleware/Proxy Logging Pattern (Corrected)
@@ -281,7 +283,7 @@ If your service was running with vulnerable versions:
 **✅ SECURITY GUIDANCE:**
 1. ✅ Security advisories: Follow current, not hardcoded versions
 2. ✅ Package verification: npm ls for resolved versions
-3. ✅ Middleware logging: Corrected to context.waitUntil (verify at official docs)
+3. Middleware logging: Corrected to event.waitUntil (verify at official docs)
 4. ✅ Body size config: Use proxyClientMaxBodySize (verify current name)
 5. ✅ Rate limiting: External service decision gate required for production
 6. ✅ Privacy policy: NO external avatar services

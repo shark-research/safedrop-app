@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Link as LinkIcon, CheckCircle2, XCircle, ChevronRight, Activity, Lock, Smartphone, Globe, Key, AlertTriangle, Info, Share2, Edit3, Save, Flame, Sun, Moon, Shield, Zap, ShieldAlert } from 'lucide-react';
+import { Link as LinkIcon, CheckCircle2, XCircle, ChevronRight, Activity, Lock, Smartphone, Globe, Key, AlertTriangle, Info, Share2, Edit3, Save, Flame, Sun, Moon, Shield, Zap, ShieldAlert, LayoutDashboard, Wallet, TrendingUp, Gift, Coins } from 'lucide-react';
 
 // Wallet imports
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -107,7 +107,7 @@ interface GlassCardProps {
 const GlassCard = ({ children, className = "", onClick, dark }: GlassCardProps) => (
     <div
         onClick={onClick}
-        className={`relative overflow-hidden backdrop-blur-xl rounded-3xl shadow-lg transition-all duration-300 hover:scale-[1.01] ${dark
+        className={`relative overflow-visible backdrop-blur-xl rounded-3xl shadow-lg transition-all duration-300 hover:scale-[1.01] ${dark
             ? 'bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-white/20'
             : 'bg-white/90 border border-gray-200 shadow-xl hover:bg-white hover:border-gray-300'
             } ${className}`}
@@ -115,7 +115,6 @@ const GlassCard = ({ children, className = "", onClick, dark }: GlassCardProps) 
         {children}
     </div>
 );
-
 interface BadgeProps {
     children: React.ReactNode;
     color?: string;
@@ -157,6 +156,18 @@ interface SecurityCheckItemProps {
 const SecurityCheckItem = ({ check, status, dark }: SecurityCheckItemProps) => {
     const Icon = check.icon;
     const [isHovered, setIsHovered] = useState(false);
+    const [showAbove, setShowAbove] = useState(true);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Determine tooltip position based on available space
+    useEffect(() => {
+        if (isHovered && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const spaceAbove = rect.top;
+            const tooltipHeight = 280; // Approximate tooltip height
+            setShowAbove(spaceAbove > tooltipHeight);
+        }
+    }, [isHovered]);
 
     // Status Styles
     const statusConfig = {
@@ -190,6 +201,7 @@ const SecurityCheckItem = ({ check, status, dark }: SecurityCheckItemProps) => {
 
     return (
         <div
+            ref={containerRef}
             className="relative w-full group"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -214,12 +226,15 @@ const SecurityCheckItem = ({ check, status, dark }: SecurityCheckItemProps) => {
                 </div>
             </div>
 
-            {/* Advanced Tooltip */}
+            {/* Smart Auto-positioning Tooltip */}
             {isHovered && (
-                <div className={`absolute left-0 bottom-full mb-3 w-80 z-50 p-5 rounded-xl shadow-2xl backdrop-blur-xl animate-[fadeInScale_0.2s_ease-out] pointer-events-none border ${dark ? 'bg-[#1a1b1f] border-white/10' : 'bg-white border-gray-200'
-                    }`}>
-                    <div className={`absolute bottom-[-6px] left-6 w-3 h-3 rotate-45 border-r border-b ${dark ? 'bg-[#1a1b1f] border-white/10' : 'bg-white border-gray-200'
-                        }`}></div>
+                <div className={`absolute left-0 w-80 z-50 p-5 rounded-xl shadow-2xl backdrop-blur-xl animate-[fadeInScale_0.2s_ease-out] pointer-events-none border ${showAbove ? 'bottom-full mb-3' : 'top-full mt-3'
+                    } ${dark ? 'bg-[#1a1b1f] border-white/10' : 'bg-white border-gray-200'}`}>
+                    {/* Arrow - positioned based on showAbove */}
+                    <div className={`absolute left-6 w-3 h-3 rotate-45 ${showAbove
+                        ? 'bottom-[-6px] border-r border-b'
+                        : 'top-[-6px] border-l border-t'
+                        } ${dark ? 'bg-[#1a1b1f] border-white/10' : 'bg-white border-gray-200'}`}></div>
 
                     <div className="flex items-center justify-between mb-3 border-b pb-2 border-white/10">
                         <h4 className={`font-display font-bold text-sm ${dark ? 'text-white' : 'text-gray-900'}`}>{check.title}</h4>
@@ -278,7 +293,6 @@ const SocialBoostItem = ({ icon: Icon, title, points, isCompleted, dark, onClick
             <Icon className="w-5 h-5" />
         </div>
         <div className={`text-xs font-bold font-display mb-1 ${dark ? 'text-white' : 'text-gray-900'}`}>{title}</div>
-        <div className={`text-[10px] font-mono ${isCompleted ? 'text-emerald-500' : dark ? 'text-white/30' : 'text-gray-400'}`}>+{points}</div>
     </button>
 );
 
@@ -318,6 +332,29 @@ export default function SafeDropDashboard() {
     const [isEditingRef, setIsEditingRef] = useState(false);
     const [tempRefLink, setTempRefLink] = useState(referralLink);
     const [isCopied, setIsCopied] = useState(false);
+    const [showPartnerDashboard, setShowPartnerDashboard] = useState(false);
+
+    // Exchange Verification State
+    const [showExchangeModal, setShowExchangeModal] = useState(false);
+    const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
+    const [exchangeForm, setExchangeForm] = useState({ key: '', secret: '', passphrase: '' });
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [verificationError, setVerificationError] = useState<string | null>(null);
+
+    const EXCHANGES = [
+        { id: 'binance', name: 'Binance', logo: '/assets/binance/logo.svg', needsPassphrase: false, screens: ['/assets/binance/screen1.png', '/assets/binance/screen2.png'] },
+        { id: 'okx', name: 'OKX', logo: '/assets/okx/logo.svg', needsPassphrase: true, screens: ['/assets/okx/screen1.jpg'] },
+        { id: 'bybit', name: 'Bybit', logo: '/assets/bybit/logo.svg', needsPassphrase: false, screens: ['/assets/bybit/screen1.jpg', '/assets/bybit/screen2.jpg'] },
+        { id: 'kucoin', name: 'KuCoin', logo: '/assets/kucoin/logo.svg', needsPassphrase: true, screens: ['/assets/kucoin/screen1.jpg'] },
+        { id: 'bitget', name: 'Bitget', logo: '/assets/bitget/logo.svg', needsPassphrase: true, screens: ['/assets/bitget/screen1.jpg', '/assets/bitget/screen2.jpg'] },
+        { id: 'gate', name: 'Gate.io', logo: '/assets/gate/logo.svg', needsPassphrase: false, screens: ['/assets/gate/screen1.jpg'] },
+        { id: 'mexc', name: 'MEXC', logo: '/assets/mexc/logo.svg', needsPassphrase: false, screens: ['/assets/mexc/screen1.jpg'] },
+        { id: 'bingx', name: 'BingX', logo: '/assets/bingx/logo.svg', needsPassphrase: false, screens: ['/assets/bingx/screen1.jpg'] },
+        { id: 'kraken', name: 'Kraken', logo: '/assets/kraken/logo.svg', needsPassphrase: false, screens: ['/assets/kraken/screen1.jpg'] },
+    ];
+
+    const [showApiHelp, setShowApiHelp] = useState(false);
+    const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
     // Wallet Hooks - EVM (RainbowKit/Wagmi)
     const { address: evmAddress, isConnected: isEvmConnected } = useAccount();
@@ -328,10 +365,14 @@ export default function SafeDropDashboard() {
     const { publicKey: solanaPublicKey, connected: isSolanaConnected, disconnect: disconnectSolana } = useWallet();
     const { setVisible: setSolanaModalVisible } = useWalletModal();
 
+    // Hydration guard to avoid server/client mismatch on wallet state
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
     // Computed: is any wallet connected?
-    const isVaultConnected = isEvmConnected || isSolanaConnected;
+    const isVaultConnected = mounted ? (isEvmConnected || isSolanaConnected) : false;
     const isConnected = isVaultConnected || isBurnerConnected; // Overall app connected state
-    const walletAddress = evmAddress || solanaPublicKey?.toBase58() || '';
+    const walletAddress = mounted ? (evmAddress || solanaPublicKey?.toBase58() || '') : '';
     const shortAddress = walletAddress ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}` : '';
 
     // --- Logic: Security Status Simulation ---
@@ -415,6 +456,47 @@ export default function SafeDropDashboard() {
         navigator.clipboard.writeText(referralLink);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
+    };
+
+    const handleExchangeVerify = async () => {
+        if (!selectedExchange || !walletAddress) return;
+
+        setIsVerifying(true);
+        setVerificationError(null);
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL || ''}/verification`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    exchange: selectedExchange,
+                    key: exchangeForm.key,
+                    secret: exchangeForm.secret,
+                    passphrase: exchangeForm.passphrase,
+                    wallet: walletAddress
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.found) {
+                setSocials(prev => ({ ...prev, exchange: true }));
+                setShowExchangeModal(false);
+                setSelectedExchange(null);
+                setExchangeForm({ key: '', secret: '', passphrase: '' });
+            } else {
+                setVerificationError('Wallet address not found in this exchange. Make sure you use the correct API keys.');
+            }
+        } catch {
+            setVerificationError('Failed to verify. Please check your API credentials and try again.');
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
+    const openExchangeModal = () => {
+        if (!isConnected) return;
+        setShowExchangeModal(true);
     };
 
     // Shorthand for dark mode
@@ -655,7 +737,7 @@ export default function SafeDropDashboard() {
                                         title="Exchange"
                                         points={40}
                                         isCompleted={socials.exchange}
-                                        onClick={() => toggleSocial('exchange')}
+                                        onClick={openExchangeModal}
                                         dark={d}
                                     />
                                     <SocialBoostItem
@@ -809,7 +891,33 @@ export default function SafeDropDashboard() {
                         }`}>
                         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                             <div className="flex-1">
-                                <h3 className={`text-2xl font-bold font-display mb-2 ${d ? 'text-white' : 'text-gray-900'}`}>Referral Program</h3>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <h3 className={`text-2xl font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>Referral Program</h3>
+                                    <div className="relative group/tier">
+                                        <Info className={`w-4 h-4 cursor-help ${d ? 'text-white/40 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'}`} />
+                                        <div className={`absolute left-full ml-3 top-1/2 -translate-y-1/2 w-80 p-4 rounded-xl shadow-xl z-[100] opacity-0 pointer-events-none group-hover/tier:opacity-100 group-hover/tier:pointer-events-auto transition-opacity ${d ? 'bg-[#1a1b1f] border border-white/10' : 'bg-white border border-gray-200'}`}>
+                                            <div className={`text-sm font-bold mb-3 ${d ? 'text-white' : 'text-gray-900'}`}>Lifetime Accumulation</div>
+                                            <div className="space-y-2.5 text-sm">
+                                                <div className={d ? 'text-white/70' : 'text-gray-600'}>
+                                                    <span className="text-teal-400 font-semibold">Scout:</span> $0 - $10k Revenue
+                                                    <div className={`text-xs mt-0.5 ${d ? 'text-white/50' : 'text-gray-500'}`}>Direct 5% / Sub-referral 2%</div>
+                                                </div>
+                                                <div className={d ? 'text-white/70' : 'text-gray-600'}>
+                                                    <span className="text-blue-400 font-semibold">Hunter:</span> $10k - $50k Revenue
+                                                    <div className={`text-xs mt-0.5 ${d ? 'text-white/50' : 'text-gray-500'}`}>Direct 7% / Sub-referral 3%</div>
+                                                </div>
+                                                <div className={d ? 'text-white/70' : 'text-gray-600'}>
+                                                    <span className="text-purple-400 font-semibold">Guardian:</span> $50k+ Revenue
+                                                    <div className={`text-xs mt-0.5 ${d ? 'text-white/50' : 'text-gray-500'}`}>Direct 10% / Sub-referral 5%</div>
+                                                </div>
+                                                <div className={`pt-2 border-t ${d ? 'border-white/10 text-white/70' : 'border-gray-200 text-gray-600'}`}>
+                                                    <span className="text-yellow-400 font-semibold">Enterprise B2B:</span>
+                                                    <div className={`text-xs mt-0.5 ${d ? 'text-white/50' : 'text-gray-500'}`}>Direct 14% / Sub-referral 1%</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <p className={d ? 'text-white/60' : 'text-gray-600'}>Invite friends to SafeDrop and earn rewards for every verified user.</p>
                             </div>
 
@@ -850,11 +958,19 @@ export default function SafeDropDashboard() {
                                                 onClick={handleCopyLink}
                                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all font-display text-sm hover:scale-105 ${isCopied
                                                     ? 'bg-emerald-500 text-white'
-                                                    : d ? 'bg-white text-black' : 'bg-gray-900 text-white'
+                                                    : d ? 'bg-white/10 text-white border border-white/20' : 'bg-gray-100 text-gray-700 border border-gray-200'
                                                     }`}
                                             >
                                                 {isCopied ? <CheckCircle2 className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
                                                 {isCopied ? 'Copied!' : 'Share'}
+                                            </button>
+
+                                            <button
+                                                onClick={() => setShowPartnerDashboard(true)}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all font-display text-sm hover:scale-105 bg-gradient-to-r from-teal-500 to-purple-500 text-white shadow-lg ${d ? 'shadow-teal-500/20' : ''}`}
+                                            >
+                                                <LayoutDashboard className="w-4 h-4" />
+                                                Dashboard
                                             </button>
                                         </>
                                     )}
@@ -964,6 +1080,307 @@ export default function SafeDropDashboard() {
                             ))}
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* --- Exchange Verification Modal --- */}
+            {showExchangeModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => { setShowExchangeModal(false); setSelectedExchange(null); }}></div>
+                    <div className={`relative w-full max-w-lg border rounded-3xl shadow-2xl overflow-hidden animate-[fadeInScale_0.2s_ease-out] flex flex-col max-h-[90vh] ${d ? 'bg-[#121212] border-white/10' : 'bg-white border-gray-200'}`}>
+                        <div className={`p-6 border-b flex justify-between items-center ${d ? 'border-white/5 bg-white/[0.02]' : 'border-gray-100 bg-gray-50'}`}>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-xl bg-yellow-500/10 text-yellow-500">
+                                    <Activity className="w-5 h-5" />
+                                </div>
+                                <h3 className={`text-xl font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>Exchange Verification</h3>
+                            </div>
+                            <button onClick={() => { setShowExchangeModal(false); setSelectedExchange(null); }} className={`transition-colors ${d ? 'text-white/40 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
+                                <XCircle className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                            {!selectedExchange ? (
+                                <div className="grid grid-cols-3 gap-3">
+                                    {EXCHANGES.map((ex) => (
+                                        <button
+                                            key={ex.id}
+                                            onClick={() => setSelectedExchange(ex.id)}
+                                            className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${d
+                                                ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-yellow-500/50'
+                                                : 'bg-white border-gray-200 hover:border-yellow-500 shadow-sm'}`}
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1.5 shadow-sm">
+                                                <img src={ex.logo} alt={ex.name} className="w-full h-full object-contain" />
+                                            </div>
+                                            <span className={`text-xs font-medium ${d ? 'text-white' : 'text-gray-900'}`}>{ex.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={() => { setSelectedExchange(null); setVerificationError(null); setShowApiHelp(false); }}
+                                        className={`flex items-center gap-2 text-sm ${d ? 'text-white/60 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+                                    >
+                                        <ChevronRight className="w-4 h-4 rotate-180" /> Back
+                                    </button>
+
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center p-2 shadow-sm">
+                                            <img src={EXCHANGES.find(e => e.id === selectedExchange)?.logo} alt="" className="w-full h-full object-contain" />
+                                        </div>
+                                        <div>
+                                            <h3 className={`text-lg font-bold ${d ? 'text-white' : 'text-gray-900'}`}>
+                                                {EXCHANGES.find(e => e.id === selectedExchange)?.name}
+                                            </h3>
+                                            <button
+                                                onClick={() => setShowApiHelp(!showApiHelp)}
+                                                className={`text-xs flex items-center gap-1 mt-0.5 ${d ? 'text-yellow-400 hover:text-yellow-300' : 'text-yellow-600 hover:text-yellow-700'}`}
+                                            >
+                                                <Info className="w-3 h-3" />
+                                                How to create API keys
+                                                <ChevronRight className={`w-3 h-3 transition-transform ${showApiHelp ? 'rotate-90' : ''}`} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {showApiHelp && (
+                                        <div className={`p-4 rounded-xl border mb-4 ${d ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+                                            <p className={`text-sm mb-3 ${d ? 'text-white/70' : 'text-gray-600'}`}>
+                                                Go to the exchange settings and create API keys with the following permissions:
+                                            </p>
+                                            <div className="space-y-2">
+                                                {EXCHANGES.find(e => e.id === selectedExchange)?.screens.map((screen, i) => (
+                                                    <img
+                                                        key={i}
+                                                        src={screen}
+                                                        alt={`Step ${i + 1}`}
+                                                        className="w-full rounded-lg border border-white/10 cursor-zoom-in hover:opacity-80 transition-opacity"
+                                                        onClick={() => setZoomedImage(screen)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${d ? 'text-white/40' : 'text-gray-500'}`}>API Key</label>
+                                            <input
+                                                type="text"
+                                                value={exchangeForm.key}
+                                                onChange={(e) => setExchangeForm({ ...exchangeForm, key: e.target.value })}
+                                                className={`w-full p-3 rounded-xl outline-none border transition-all ${d ? 'bg-black/20 border-white/10 focus:border-yellow-500/50 text-white' : 'bg-gray-50 border-gray-200 focus:border-yellow-500 text-gray-900'}`}
+                                                placeholder="Enter API Key"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${d ? 'text-white/40' : 'text-gray-500'}`}>API Secret</label>
+                                            <input
+                                                type="password"
+                                                value={exchangeForm.secret}
+                                                onChange={(e) => setExchangeForm({ ...exchangeForm, secret: e.target.value })}
+                                                className={`w-full p-3 rounded-xl outline-none border transition-all ${d ? 'bg-black/20 border-white/10 focus:border-yellow-500/50 text-white' : 'bg-gray-50 border-gray-200 focus:border-yellow-500 text-gray-900'}`}
+                                                placeholder="Enter API Secret"
+                                            />
+                                        </div>
+
+                                        {EXCHANGES.find(e => e.id === selectedExchange)?.needsPassphrase && (
+                                            <div>
+                                                <label className={`block text-xs font-bold uppercase tracking-wider mb-1.5 ${d ? 'text-white/40' : 'text-gray-500'}`}>Passphrase</label>
+                                                <input
+                                                    type="password"
+                                                    value={exchangeForm.passphrase}
+                                                    onChange={(e) => setExchangeForm({ ...exchangeForm, passphrase: e.target.value })}
+                                                    className={`w-full p-3 rounded-xl outline-none border transition-all ${d ? 'bg-black/20 border-white/10 focus:border-yellow-500/50 text-white' : 'bg-gray-50 border-gray-200 focus:border-yellow-500 text-gray-900'}`}
+                                                    placeholder="Enter Passphrase"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {verificationError && (
+                                        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex items-center gap-2">
+                                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                                            {verificationError}
+                                        </div>
+                                    )}
+
+                                    <button
+                                        onClick={handleExchangeVerify}
+                                        disabled={isVerifying || !exchangeForm.key || !exchangeForm.secret}
+                                        className={`w-full py-3 rounded-xl font-bold font-display transition-all ${isVerifying
+                                            ? 'bg-white/5 text-white/20 cursor-wait'
+                                            : !exchangeForm.key || !exchangeForm.secret
+                                                ? 'bg-white/5 text-white/20 cursor-not-allowed'
+                                                : 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-lg shadow-yellow-500/20'
+                                            }`}
+                                    >
+                                        {isVerifying ? 'Verifying...' : 'Verify Connection'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- Partner Dashboard Modal --- */}
+            {showPartnerDashboard && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowPartnerDashboard(false)}></div>
+                    <div className={`relative w-full max-w-2xl border rounded-3xl shadow-2xl overflow-hidden animate-[fadeInScale_0.2s_ease-out] flex flex-col max-h-[90vh] ${d ? 'bg-[#121212] border-white/10' : 'bg-white border-gray-200'}`}>
+
+                        <div className={`p-6 border-b flex justify-between items-center ${d ? 'border-white/5 bg-gradient-to-r from-teal-500/10 to-purple-500/10' : 'border-gray-100 bg-gradient-to-r from-teal-50 to-purple-50'}`}>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-purple-500 flex items-center justify-center">
+                                    <LayoutDashboard className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className={`text-xl font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>Partner Dashboard</h3>
+                                    <p className={`text-xs ${d ? 'text-white/40' : 'text-gray-500'}`}>Manage your referral earnings</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowPartnerDashboard(false)} className={`transition-colors ${d ? 'text-white/40 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
+                                <XCircle className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
+
+                            {/* Tier Status */}
+                            <div className={`p-5 rounded-2xl border ${d ? 'bg-white/[0.02] border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${isConnected ? 'bg-gradient-to-br from-orange-400 to-orange-600 shadow-orange-500/20' : 'bg-gray-500'}`}>
+                                            <Shield className="w-7 h-7 text-white" />
+                                        </div>
+                                        <div>
+                                            <div className={`text-xs font-medium ${d ? 'text-white/40' : 'text-gray-500'}`}>Current Tier</div>
+                                            <div className={`text-xl font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>{isConnected ? 'Hunter' : '--'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className={`text-sm font-medium ${d ? 'text-teal-400' : 'text-teal-600'}`}>Direct: {isConnected ? '7%' : '--'}</div>
+                                        <div className={`text-sm font-medium ${d ? 'text-purple-400' : 'text-purple-600'}`}>Sub: {isConnected ? '3%' : '--'}</div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs">
+                                        <span className={d ? 'text-white/60' : 'text-gray-600'}>Progress to Guardian</span>
+                                        <span className={`font-mono ${d ? 'text-white' : 'text-gray-900'}`}>{isConnected ? '$12,400 / $50,000' : '-- / --'}</span>
+                                    </div>
+                                    <div className={`h-2.5 rounded-full overflow-hidden ${d ? 'bg-white/10' : 'bg-gray-200'}`}>
+                                        <div className="h-full rounded-full bg-gradient-to-r from-orange-400 to-purple-500 transition-all duration-500" style={{ width: isConnected ? '24.8%' : '0%' }}></div>
+                                    </div>
+                                    {isConnected && (
+                                        <div className={`flex items-center gap-2 text-xs ${d ? 'text-purple-400' : 'text-purple-600'}`}>
+                                            <TrendingUp className="w-3 h-3" />
+                                            <span>Reach Guardian to unlock <strong>10% + 5%</strong></span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Token Balances */}
+                            <div className={`p-5 rounded-2xl border ${d ? 'bg-white/[0.02] border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <Wallet className={`w-5 h-5 ${d ? 'text-teal-400' : 'text-teal-600'}`} />
+                                        <h4 className={`font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>Token Balances</h4>
+                                    </div>
+                                    <div className={`text-xl font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>
+                                        {isConnected ? '$120.00' : '--'} <span className={`text-xs font-normal ${d ? 'text-white/40' : 'text-gray-500'}`}>USDT</span>
+                                    </div>
+                                </div>
+
+                                {isConnected ? (
+                                    <>
+                                        <div className="space-y-2 mb-4">
+                                            {[
+                                                { symbol: 'JUP', amount: '450', value: '$85.00', color: 'from-green-400 to-teal-500' },
+                                                { symbol: 'WIF', amount: '12,000', value: '$24.00', color: 'from-amber-400 to-orange-500' },
+                                                { symbol: 'BONK', amount: '5M', value: '$11.00', color: 'from-yellow-400 to-amber-500' },
+                                            ].map((token) => (
+                                                <div key={token.symbol} className={`flex items-center justify-between p-3 rounded-xl ${d ? 'bg-white/5' : 'bg-white border border-gray-200'}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${token.color} flex items-center justify-center text-white text-xs font-bold`}>{token.symbol[0]}</div>
+                                                        <div>
+                                                            <div className={`font-medium text-sm ${d ? 'text-white' : 'text-gray-900'}`}>{token.symbol}</div>
+                                                            <div className={`text-xs ${d ? 'text-white/40' : 'text-gray-500'}`}>{token.amount} ≈ {token.value}</div>
+                                                        </div>
+                                                    </div>
+                                                    <button className="px-3 py-1.5 rounded-lg bg-teal-500/20 text-teal-500 text-xs font-medium hover:bg-teal-500/30 transition-colors">
+                                                        Claim
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <button className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-medium transition-all ${d ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                                                <Gift className="w-4 h-4" />
+                                                Claim All
+                                            </button>
+                                            <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-medium bg-gradient-to-r from-teal-500 to-purple-500 text-white hover:opacity-90 transition-all">
+                                                <Coins className="w-4 h-4" />
+                                                Convert Dust
+                                            </button>
+                                        </div>
+
+                                        <div className={`mt-3 flex items-start gap-2 p-3 rounded-lg text-xs ${d ? 'bg-orange-500/10 text-orange-300' : 'bg-orange-50 text-orange-700'}`}>
+                                            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                                            <span>Gas ~$0.50 SOL. Convert Dust includes 1.5% swap fee via Jupiter.</span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className={`text-center py-8 ${d ? 'text-white/40' : 'text-gray-400'}`}>
+                                        Connect wallet to view balances
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Stats */}
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className={`p-4 rounded-xl text-center ${d ? 'bg-white/5' : 'bg-gray-50'}`}>
+                                    <div className={`text-2xl font-bold font-display ${d ? 'text-white' : 'text-gray-900'}`}>{isConnected ? '24' : '--'}</div>
+                                    <div className={`text-xs ${d ? 'text-white/40' : 'text-gray-500'}`}>Referrals</div>
+                                </div>
+                                <div className={`p-4 rounded-xl text-center ${d ? 'bg-white/5' : 'bg-gray-50'}`}>
+                                    <div className={`text-2xl font-bold font-display ${d ? 'text-teal-400' : 'text-teal-600'}`}>{isConnected ? '8' : '--'}</div>
+                                    <div className={`text-xs ${d ? 'text-white/40' : 'text-gray-500'}`}>Sub-Refs</div>
+                                </div>
+                                <div className={`p-4 rounded-xl text-center ${d ? 'bg-white/5' : 'bg-gray-50'}`}>
+                                    <div className={`text-2xl font-bold font-display ${d ? 'text-purple-400' : 'text-purple-600'}`}>{isConnected ? '$12.4k' : '--'}</div>
+                                    <div className={`text-xs ${d ? 'text-white/40' : 'text-gray-500'}`}>Lifetime</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- Image Lightbox/Zoom Modal --- */}
+            {zoomedImage && (
+                <div
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm cursor-zoom-out"
+                    onClick={() => setZoomedImage(null)}
+                >
+                    <button
+                        onClick={() => setZoomedImage(null)}
+                        className="absolute top-6 right-6 text-white/60 hover:text-white transition-colors"
+                    >
+                        <XCircle className="w-8 h-8" />
+                    </button>
+                    <img
+                        src={zoomedImage}
+                        alt="Zoomed screenshot"
+                        className="max-w-[95vw] max-h-[90vh] object-contain rounded-xl shadow-2xl cursor-zoom-out"
+                        onClick={() => setZoomedImage(null)}
+                    />
                 </div>
             )}
         </div>

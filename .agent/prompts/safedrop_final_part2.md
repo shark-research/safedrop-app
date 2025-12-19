@@ -289,10 +289,15 @@ const SybilGraph = dynamic(
 <a name="api-client"></a>
 # 4. API_CLIENT
 
-## Client Setup (SSR Safe)
+## Client Setup + Proxy Logging (SSR Safe)
+
+**SSR note:** Keep browser-only side effects (toasts) behind `typeof window !== 'undefined'`.
+**Proxy note:** Use `event.waitUntil(logger.flush())` in Next.js proxy functions.
 
 ```typescript
 import axios from 'axios';
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_SERVER_URL,
@@ -303,7 +308,6 @@ export const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // SSR safe: only toast on client
     if (typeof window !== 'undefined') {
       const { toast } = await import('sonner');
       toast.error('Error', {
@@ -313,7 +317,19 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export async function proxy(
+  request: NextRequest,
+  event: { waitUntil: (promise: Promise<any>) => void }
+) {
+  logger.info('proxy_request', { path: request.nextUrl.pathname });
+  event.waitUntil(logger.flush());
+
+  const upstream = await apiClient.get('/health');
+  return NextResponse.json(upstream.data);
+}
 ```
+
 
 ## React Query
 

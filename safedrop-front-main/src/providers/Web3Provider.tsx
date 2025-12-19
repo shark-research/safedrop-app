@@ -4,11 +4,14 @@ import React from "react";
 import {
   connectorsForWallets,
   darkTheme,
-  lightTheme,
-  getDefaultConfig,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { type CreateConnectorFn, WagmiProvider } from 'wagmi';
+import {
+  type CreateConnectorFn,
+  WagmiProvider,
+  createConfig,
+  http,
+} from 'wagmi';
 import {
   mainnet, arbitrum, bsc, polygon, optimism, base, linea,
 } from 'wagmi/chains';
@@ -67,12 +70,19 @@ export const wagmiConnectors: () => CreateConnectorFn[] = () => {
   );
 };
 
-export const config = getDefaultConfig({
-  appName: 'SafeDrop',
-  projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
-  chains: [bsc, mainnet, polygon, optimism, arbitrum, base, linea],
-  ssr: false,
+const supportedChains = [bsc, mainnet, polygon, optimism, arbitrum, base, linea] as const;
+
+export const config = createConfig({
+  chains: supportedChains,
   connectors: wagmiConnectors(),
+  transports: supportedChains.reduce(
+    (acc, chain) => ({
+      ...acc,
+      [chain.id]: http(),
+    }),
+    {} as Record<number, ReturnType<typeof http>>,
+  ),
+  ssr: false,
 });
 
 const queryClient = new QueryClient();
