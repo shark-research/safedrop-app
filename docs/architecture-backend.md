@@ -1,7 +1,7 @@
 # Architecture - Backend (`safedrop-back-main`)
 
-> **status**: **READ-ONLY**
-> **note**: No modifications allowed. Documentation is for reference only.
+> **status**: **EDITABLE**
+> **note**: Backend is now fully editable.
 
 ## Executive Summary
 The backend is a **NestJS 11** service acting as the verification engine. It exposes a unified API for checking wallet withdrawal history across multiple centralized exchanges (CEXs).

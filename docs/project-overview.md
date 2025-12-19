@@ -13,7 +13,7 @@ The system consists of:
 1. **Frontend (`safedrop-front-main`)**: A modern Next.js 16 application for user interaction, wallet connection (EVM & Solana), and exchange verification.
 2. **Backend (`safedrop-back-main`)**: A NestJS API service that validates wallet activities against centralized exchanges (Binance, OKX, etc.).
 
-> **⚠️ CRITICAL RULE:** The backend (`safedrop-back-main/`) is currently **READ-ONLY**. All active development must occur in the frontend.
+> **✅ Full Stack Development**: Both `safedrop-front-main/` and `safedrop-back-main/` are editable.
 
 ## Repository Structure
 
@@ -22,7 +22,7 @@ The project is organized as a multi-part repository:
 | Part | Type | Path | Tech Stack | Status |
 |------|------|------|------------|--------|
 | **Frontend** | Web | `safedrop-front-main/` | Next.js 16, React 19, TailwindCSS, Wagmi | ✅ Active Development |
-| **Backend** | Backend | `safedrop-back-main/` | NestJS 11, Swagger, Axios | ⏸️ Read-Only |
+| **Backend** | Backend | `safedrop-back-main/` | NestJS 11, Swagger, Axios | ✅ Active Development |
 
 ## Key Features
 

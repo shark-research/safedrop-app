@@ -4,8 +4,6 @@ description: Основной workflow для разработки новых ф
 
 # SafeDrop Feature Development Workflow
 
-## ⚠️ CRITICAL RULE
-**NEVER MODIFY BACKEND** - All changes in `safedrop-front-main/` only!
 
 ## 1. Product Discovery
 // turbo
@@ -32,7 +30,6 @@ cat PRD_SafeDrop.md.resolved
 cd safedrop-front-main && npm run dev
 ```
 
-- Пиши код только во frontend
 - Следуй паттернам RainbowKit/Wagmi
 - Используй существующие CSS переменные
 

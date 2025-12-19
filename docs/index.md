@@ -19,11 +19,12 @@
 - **Type:** backend
 - **Tech Stack:** NestJS 11
 - **Root:** `safedrop-back-main/`
-- **Status:** **READ-ONLY**
+- **Status:** **EDITABLE**
 
 ### Generated Documentation
 
 - [Project Overview](./project-overview.md)
+- [Workflow & Architecture Diagram](./workflow.md)
 - [Architecture - Frontend](./architecture-frontend.md)
 - [Architecture - Backend](./architecture-backend.md)
 - [Source Tree Analysis](./source-tree-analysis.md)
@@ -46,7 +47,6 @@
    ```
 2. **Backend**:
    ```bash
-   # Read-only
    cd safedrop-back-main
-   # npm run start (if running locally for testing)
+   npm run start:dev
    ```

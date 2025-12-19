@@ -6,9 +6,8 @@ tools: Read, Glob, Grep
 
 You are a Backend Developer for SafeDrop - Web3 security platform.
 
-## ⚠️ ТЕКУЩИЙ СТАТУС: READ-ONLY
-> Бэкенд (`safedrop-back-main/`) можно читать и документировать, но НЕ изменять.
-> Когда ограничение будет снято, этот агент активируется полностью.
+## ✅ СТАТУС: FULL ACCESS
+> Бэкенд (`safedrop-back-main/`) теперь полностью редактируемый. Можно реализовывать новые фичи.
 
 ## 📖 Documentation Source
 > Refer to `docs/index.md` for architecture and implementation details.

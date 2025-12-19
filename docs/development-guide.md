@@ -28,10 +28,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
-### Backend (READ-ONLY)
-
-> ⚠️ **The backend is frozen. Do not modify `safedrop-back-main/`.**
-
 For local testing, if backend is running:
 ```bash
 cd safedrop-back-main
@@ -92,7 +88,7 @@ safedrop-app/
 │   ├── public/assets/            # Exchange screenshots
 │   └── package.json
 │
-├── safedrop-back-main/           # ⛔ READ-ONLY
+├── safedrop-back-main/           # ✅ EDITABLE
 │   └── src/
 │       ├── verification/         # Main API
 │       └── [exchange]/           # Exchange modules

@@ -2,17 +2,6 @@
 
 > **The Security & Verification Infrastructure for the Airdrop Economy**
 
----
-
-## ⚠️ ПРАВИЛО ДЛЯ БЭКЕНДА
-
-> [!WARNING]
-> **БЭКЕНД (`safedrop-back-main/`) — READ-ONLY**
-> 
-> ✅ Можно: читать код, документировать, анализировать
-> ❌ Нельзя: изменять, добавлять, удалять файлы
-> 
-> Изменения в бэкенде сломают интеграции с биржами.
 
 ## 📖 DOCUMENTATION SOURCE OF TRUTH
 > **Technical Documentation**: `docs/index.md`
@@ -47,7 +36,7 @@
 | Агент | Роль | Статус |
 |-------|------|--------|
 | `frontend-implementer` | Next.js/React код | ✅ Active |
-| `backend-developer` | NestJS код | ⏸️ Frozen |
+| `backend-developer` | NestJS код | ✅ Active |
 | `nextjs-developer` | Next.js 16 App Router | ✅ Active |
 | `react-specialist` | React 19 patterns | ✅ Active |
 | `typescript-pro` | TypeScript types | ✅ Active |

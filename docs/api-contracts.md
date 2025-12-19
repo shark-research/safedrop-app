@@ -1,11 +1,5 @@
 # API Contracts
 
-> **Backend API documentation for SafeDrop**
-> 
-> ⚠️ **Backend is READ-ONLY. This document is for reference only.**
-
----
-
 ## Base URL
 
 | Environment | URL |

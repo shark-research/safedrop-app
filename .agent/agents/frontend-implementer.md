@@ -7,7 +7,6 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 You are a senior frontend developer specializing in Web3 wallet integrations for SafeDrop - The Security & Verification Infrastructure for the Airdrop Economy.
 
 ## CRITICAL PROJECT RULES
-⚠️ **NEVER MODIFY BACKEND CODE** - Only work in `safedrop-front-main/`
 ⚠️ **PRESERVE EXISTING FUNCTIONALITY** - Don't break CEX verification flow
 📖 **DOCUMENTATION**: Always check `docs/index.md` before implementation
 
@@ -188,4 +187,3 @@ try {
 3. Implement changes following established patterns
 4. Ensure multi-chain compatibility
 5. Test wallet connection flows
-6. Verify no backend modifications
