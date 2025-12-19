@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { VerificationService } from './verification.service';
 import { BinanceModule } from '../binance/binance.module';
 import { VerificationController } from './verification.controller';
@@ -10,9 +11,12 @@ import { KrakenModule } from '../kraken/kraken.module';
 import { KucoinModule } from '../kucoin/kucoin.module';
 import { MexcModule } from '../mexc/mexc.module';
 import { OkxModule } from '../okx/okx.module';
+import { ApiKeyGuard } from '../common/guards/api-key.guard';
+import { RateLimitGuard } from '../common/guards/rate-limit.guard';
 
 @Module({
   imports: [
+    ConfigModule,
     BinanceModule,
     BingxModule,
     BitgetModule,
@@ -24,6 +28,6 @@ import { OkxModule } from '../okx/okx.module';
     OkxModule,
   ],
   controllers: [VerificationController],
-  providers: [VerificationService],
+  providers: [VerificationService, ApiKeyGuard, RateLimitGuard],
 })
 export class VerificationModule {}

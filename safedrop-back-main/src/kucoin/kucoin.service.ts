@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { fetchWithTimeout } from '../common/http/fetch-with-timeout';
 
 @Injectable()
 export class KucoinService {
@@ -24,7 +25,7 @@ export class KucoinService {
     let startTime = now - MONTHS_MS;
 
     while (startTime > now - YEARS_MS) {
-      const response = await fetch(`${this.KUCOIN_API_URL}/api/v1/timestamp`);
+      const response = await fetchWithTimeout(`${this.KUCOIN_API_URL}/api/v1/timestamp`);
       const data = await response.json();
       const timestamp = data.data;
 
@@ -43,7 +44,7 @@ export class KucoinService {
         .digest('base64');
 
       try {
-        const response = await fetch(
+        const response = await fetchWithTimeout(
           `${this.KUCOIN_API_URL}${endpoint}?${queryString}`,
           {
             method: 'GET',
@@ -86,7 +87,7 @@ export class KucoinService {
         }
       } catch (error) {
         this.logger.error(error);
-        if (error instanceof BadRequestException) {
+        if (error instanceof HttpException) {
           throw error;
         }
         throw new BadRequestException(error);

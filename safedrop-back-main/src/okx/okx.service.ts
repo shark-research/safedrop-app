@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { fetchWithTimeout } from '../common/http/fetch-with-timeout';
 
 @Injectable()
 export class OkxService {
@@ -52,7 +53,7 @@ export class OkxService {
     this.logger.log(`API Key: ${apiKey.slice(0, 8)}...`);
 
     try {
-      const response = await fetch(`${this.OKX_API_URL}${requestPath}`, {
+      const response = await fetchWithTimeout(`${this.OKX_API_URL}${requestPath}`, {
         method: method,
         headers: {
           'OK-ACCESS-KEY': apiKey,
@@ -107,7 +108,7 @@ export class OkxService {
     } catch (error) {
       this.logger.error(`OKX verification failed: ${error.message}`);
 
-      if (error instanceof BadRequestException) {
+      if (error instanceof HttpException) {
         throw error;
       }
 

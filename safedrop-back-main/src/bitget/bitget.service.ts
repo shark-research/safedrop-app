@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { fetchWithTimeout } from '../common/http/fetch-with-timeout';
 
 @Injectable()
 export class BitgetService {
@@ -37,7 +38,7 @@ export class BitgetService {
       const url = `${this.BITGET_API_URL}${requestPath}`;
 
       try {
-        const response = await fetch(url, {
+        const response = await fetchWithTimeout(url, {
           method,
           headers: {
             'ACCESS-KEY': key,
@@ -75,7 +76,7 @@ export class BitgetService {
         }
       } catch (error) {
         this.logger.error(error);
-        if (error instanceof BadRequestException) {
+        if (error instanceof HttpException) {
           throw error;
         }
         throw new BadRequestException(error);

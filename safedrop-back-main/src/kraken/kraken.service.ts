@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as qs from 'querystring';
+import { fetchWithTimeout } from '../common/http/fetch-with-timeout';
 
 @Injectable()
 export class KrakenService {
@@ -29,7 +30,7 @@ export class KrakenService {
       .digest('base64');
 
     try {
-      const response = await fetch(`${this.KRAKEN_API_URL}${path}`, {
+      const response = await fetchWithTimeout(`${this.KRAKEN_API_URL}${path}`, {
         method: 'POST',
         headers: {
           'API-Key': apiKey,
@@ -67,7 +68,7 @@ export class KrakenService {
       return { found };
     } catch (error) {
       this.logger.error(error);
-      if (error instanceof BadRequestException) {
+      if (error instanceof HttpException) {
         throw error;
       }
       throw new BadRequestException(error);

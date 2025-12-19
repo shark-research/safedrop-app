@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { fetchWithTimeout } from '../common/http/fetch-with-timeout';
 
 @Injectable()
 export class MexcService {
@@ -18,7 +19,7 @@ export class MexcService {
     let startTime = now - MONTHS_MS;
 
     while (startTime > now - YEARS_MS) {
-      const response = await fetch(`${this.MEXC_API_URL}/api/v3/time`);
+      const response = await fetchWithTimeout(`${this.MEXC_API_URL}/api/v3/time`);
       const data = await response.json();
       const timestamp = data.serverTime;
 
@@ -32,7 +33,7 @@ export class MexcService {
         .digest('hex');
 
       try {
-        const response = await fetch(
+        const response = await fetchWithTimeout(
           `${this.MEXC_API_URL}${endpoint}?${queryString}&signature=${signature}`,
           {
             method: 'GET',
@@ -65,7 +66,7 @@ export class MexcService {
         }
       } catch (error) {
         this.logger.error(error);
-        if (error instanceof BadRequestException) {
+        if (error instanceof HttpException) {
           throw error;
         }
         throw new BadRequestException(error);

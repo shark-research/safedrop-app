@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { VerificationDto } from './dto/verification.dto';
 import { BinanceService } from '../binance/binance.service';
 import { BingxService } from '../bingx/bingx.service';
@@ -75,6 +75,8 @@ export class VerificationService {
           data.passphrase,
           data.wallet,
         );
+      default:
+        throw new BadRequestException('Unsupported exchange');
     }
   }
 }

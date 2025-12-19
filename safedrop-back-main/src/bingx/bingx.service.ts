@@ -1,6 +1,7 @@
-import {BadRequestException, Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
+import {BadRequestException, HttpException, Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { fetchWithTimeout } from '../common/http/fetch-with-timeout';
 
 @Injectable()
 export class BingxService {
@@ -32,7 +33,7 @@ export class BingxService {
       const url = `${this.BINGX_API_URL}/openApi/api/v3/capital/withdraw/history?${params}&signature=${signature}`;
 
       try {
-        const response = await fetch(url, {
+        const response = await fetchWithTimeout(url, {
           method: 'GET',
           headers: { 'X-BX-APIKEY': key },
         });
@@ -63,7 +64,7 @@ export class BingxService {
         }
       } catch (error) {
         this.logger.error(error);
-        if (error instanceof BadRequestException) {
+        if (error instanceof HttpException) {
           throw error;
         }
         throw new InternalServerErrorException(error);

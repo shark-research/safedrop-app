@@ -1,6 +1,7 @@
-import {BadRequestException, Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
+import {BadRequestException, HttpException, Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { fetchWithTimeout } from '../common/http/fetch-with-timeout';
 
 @Injectable()
 export class BinanceService {
@@ -19,7 +20,7 @@ export class BinanceService {
     let startTime = now - THREE_MONTHS_MS;
 
     while (startTime > now - YEARS_MS) {
-      const response = await fetch(`${this.BINANCE_API_URL}/api/v3/time`);
+      const response = await fetchWithTimeout(`${this.BINANCE_API_URL}/api/v3/time`);
       const data = await response.json();
       const currentTimestamp = data.serverTime;
 
@@ -34,7 +35,7 @@ export class BinanceService {
       const url = `${this.BINANCE_API_URL}/sapi/v1/capital/withdraw/history?${params}&signature=${signature}`;
 
       try {
-        const response = await fetch(url, {
+        const response = await fetchWithTimeout(url, {
           method: 'GET',
           headers: { 'X-MBX-APIKEY': key },
         });
@@ -65,7 +66,7 @@ export class BinanceService {
         }
       } catch (error) {
         this.logger.error(error);
-        if (error instanceof BadRequestException) {
+        if (error instanceof HttpException) {
           throw error;
         }
         throw new InternalServerErrorException(error);

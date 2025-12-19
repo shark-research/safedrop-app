@@ -7,6 +7,8 @@ describe('VerificationController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
+    process.env.VERIFICATION_API_KEY = 'test-key';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -15,10 +17,16 @@ describe('VerificationController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/api/verification (POST) unsupported exchange', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+      .post('/api/verification')
+      .set('x-api-key', 'test-key')
+      .send({
+        exchange: 'unsupported',
+        key: 'key',
+        secret: 'secret',
+        wallet: 'wallet',
+      })
+      .expect(400);
   });
 });
