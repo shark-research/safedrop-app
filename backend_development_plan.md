@@ -414,16 +414,36 @@ Response: {
 ```
 
 **Data model (analytics):**
-- `analytics_events` — append-only событийный лог
-- `campaign_stats` — быстрые агрегаты (totals)
-- `campaign_timeseries_daily` — дневные ряды
-- `campaign_timeseries_hourly` — часовые ряды (последние 24-72h)
+- `analytics_events` - append-only событийный лог
+- `campaign_stats` - быстрые агрегаты (totals)
+- `campaign_timeseries_daily` - дневные ряды
+- `campaign_timeseries_hourly` - часовые ряды (последние 24-72h)
+
+**Reason codes (stable enum for REJECTED):**
+- `SIGNATURE_INVALID` - signature verification failed (vault or grind)
+- `CEX_API_INVALID` - API keys invalid or missing required permissions
+- `CEX_MASTER_MISMATCH` - master account hash mismatch
+- `NO_CEX_ACCESS_FOR_FIRST_3_DEPOSITS` - no API for any of the first 3 deposit exchanges
+- `CEX_SOURCE_MISMATCH` - grind first deposit exchange != vault exchange
+- `TEMPORAL_IMPOSSIBILITY` - grind funded before vault or before CEX account creation
+- `LOW_CONFIDENCE_CORRELATION` - time/amount correlation below threshold
+- `ONCHAIN_HISTORY_UNAVAILABLE` - cannot fetch first deposit history (DeBank/RPC)
+- `MIN_TRUST_SCORE_NOT_MET` - below campaign minimum score
+- `VAULT_COMPROMISED` - vault marked compromised/recovered
+- `GRIND_ALREADY_LINKED` - grind already linked/verified
+- `CAMPAIGN_CLOSED` - campaign not accepting new verifications
+- `UNSUPPORTED_CHAIN` - chain not allowed for campaign
+- `OTHER` - fallback for unknown/legacy reasons
+
+**Notes:**
+- `analytics_events.reason_code` and `verification_decisions.reason_codes` must use this enum.
+- `top_reject_reasons.reason` returns the reason code; UI maps to labels/tooltips.
 
 **Write path (step-by-step):**
 1. На завершение верификации создаём запись в `analytics_events` (APPROVED/REJECTED).
 2. В той же транзакции обновляем `campaign_stats` (инкремент counters, avg_trust_score).
 3. Пушим задачу в очередь `analytics.update` (BullMQ) для обновления time-series.
-4. При `wallet_linked` и recovery — добавляем события LINKED/RECOVERED и обновляем counters.
+4. При `wallet_linked` и recovery - добавляем события LINKED/RECOVERED и обновляем counters.
 
 **Read path:**
 - `GET /api/partners/analytics` читает `campaign_stats` + time-series таблицы.

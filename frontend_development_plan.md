@@ -142,6 +142,22 @@ export const getTrustScore = async (vaultHash: string) => { ... }
    - Top reject reasons with counts
    - Tooltip for reason description
 
+**Reason code mapping (label + tooltip):**
+- `SIGNATURE_INVALID` - "Signature invalid" - User signature failed verification
+- `CEX_API_INVALID` - "CEX API invalid" - API keys invalid or missing required permissions
+- `CEX_MASTER_MISMATCH` - "Account mismatch" - Master account hash does not match vault
+- `NO_CEX_ACCESS_FOR_FIRST_3_DEPOSITS` - "No CEX access" - No API for any of the first 3 deposit exchanges
+- `CEX_SOURCE_MISMATCH` - "Funding source mismatch" - Grind funded from different exchange
+- `TEMPORAL_IMPOSSIBILITY` - "Temporal mismatch" - Grind funded before vault or before CEX account creation
+- `LOW_CONFIDENCE_CORRELATION` - "Low correlation" - Time/amount correlation below threshold
+- `ONCHAIN_HISTORY_UNAVAILABLE` - "History unavailable" - Cannot fetch first deposit history
+- `MIN_TRUST_SCORE_NOT_MET` - "Trust score too low" - Below campaign minimum score
+- `VAULT_COMPROMISED` - "Vault compromised" - Vault marked compromised/recovered
+- `GRIND_ALREADY_LINKED` - "Already linked" - Grind already linked/verified
+- `CAMPAIGN_CLOSED` - "Campaign closed" - Campaign not accepting new verifications
+- `UNSUPPORTED_CHAIN` - "Unsupported chain" - Chain not allowed for campaign
+- `OTHER` - "Other" - Fallback when reason is unknown
+
 5. **Filters**
    - Campaign selector
    - Date range: 24h / 7d / 30d / all
