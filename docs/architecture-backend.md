@@ -45,3 +45,33 @@ The backend is a **NestJS 11** service acting as the verification engine. It exp
 - Added Postgres module and grind link repository with transaction lock.
 - Added Project Integration service for partner push.
 - Added endpoint: `POST /api/verification/link-grind`.
+
+## Configuration (Backend)
+
+### Required Env Vars
+```
+DATABASE_URL
+PG_POOL_MAX
+SOLANA_RPC_URL
+EVM_RPC_URL
+EVM_HISTORY_API_URL
+EVM_HISTORY_API_KEY
+RPC_TIMEOUT_MS
+RPC_RETRY_MAX
+RPC_RETRY_DELAY_MS
+ADDRESS_HASH_SALT
+PROJECT_INTEGRATION_URL
+PROJECT_INTEGRATION_API_KEY
+```
+
+### Required SQL
+```sql
+CREATE TABLE grind_wallet_links (
+  grind_address TEXT PRIMARY KEY,
+  vault_hash TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  chain TEXT NOT NULL,
+  linked_at TIMESTAMP NOT NULL,
+  message_hash TEXT NOT NULL
+);
+```

@@ -30,6 +30,14 @@ The project is organized as a multi-part repository:
 - **Deep Exchange Integration**: Verification via 9+ CEXs (Binance, OKX, Bybit, etc.).
 - **Anti-Sybil/Drainer Protection**: Core business logic for airdrop security.
 
+## Recent Backend Updates (2025-12-20)
+
+- Added Grind linking flow with RPC new-wallet checks, DB first-use gate, and dual signatures.
+- Added BlockchainService for Solana (web3.js) + EVM (ethers).
+- Added Postgres-backed grind link repository with transaction lock.
+- Added Project Integration service + endpoint `POST /api/verification/link-grind`.
+- Added implementation notes in docs.
+
 ## Documentation Index
 
 - [Master Index](./index.md)
