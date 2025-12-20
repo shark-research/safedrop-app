@@ -17,10 +17,17 @@ import { InternalNetworkGuard } from '../common/guards/internal-network.guard';
 import { ConcurrencyGuard } from '../common/guards/concurrency.guard';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { PublicVerificationController } from './public-verification.controller';
+import { BlockchainModule } from '../blockchain/blockchain.module';
+import { ProjectIntegrationModule } from '../project-integration/project-integration.module';
+import { PostgresModule } from '../database/postgres.module';
+import { FileLoggerModule } from '../logger/file-logger.module';
+import { GRIND_WALLET_REPOSITORY } from './verification.tokens';
+import { GrindWalletRepository } from './repositories/grind-wallet.repository';
 
 @Module({
   imports: [
     ConfigModule,
+    FileLoggerModule,
     BinanceModule,
     BingxModule,
     BitgetModule,
@@ -30,10 +37,17 @@ import { PublicVerificationController } from './public-verification.controller';
     KucoinModule,
     MexcModule,
     OkxModule,
+    BlockchainModule,
+    ProjectIntegrationModule,
+    PostgresModule,
   ],
   controllers: [VerificationController, PublicVerificationController],
   providers: [
     VerificationService,
+    {
+      provide: GRIND_WALLET_REPOSITORY,
+      useClass: GrindWalletRepository,
+    },
     ApiKeyGuard,
     RateLimitGuard,
     InternalNetworkGuard,

@@ -6,6 +6,7 @@ import { ApiKeyGuard } from '../common/guards/api-key.guard';
 import { RateLimitGuard } from '../common/guards/rate-limit.guard';
 import { InternalNetworkGuard } from '../common/guards/internal-network.guard';
 import { ConcurrencyGuard } from '../common/guards/concurrency.guard';
+import { LinkGrindDto } from './dto/link-grind.dto';
 
 @Controller('api/verification')
 @UseGuards(ApiKeyGuard, InternalNetworkGuard, RateLimitGuard, ConcurrencyGuard)
@@ -19,5 +20,11 @@ export class VerificationController {
   verification(@Body() data: VerificationDto) {
     this.logger.log(`[INCOMING] POST /api/verification - exchange=${data.exchange}`);
     return this.appService.verification(data);
+  }
+
+  @Post('link-grind')
+  linkGrind(@Body() data: LinkGrindDto) {
+    this.logger.log(`[INCOMING] POST /api/verification/link-grind - chain=${data.chain}`);
+    return this.appService.linkGrindWallet(data);
   }
 }

@@ -30,6 +30,18 @@ export class FileLoggerService {
   }
 
   log(...messages: string[]) {
-    this.logger.info(messages);
+    this.logger.info(messages.join(' '));
+  }
+
+  info(message: string) {
+    this.logger.info(message);
+  }
+
+  warn(message: string) {
+    this.logger.warn(message);
+  }
+
+  error(message: string) {
+    this.logger.error(message);
   }
 }

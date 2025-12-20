@@ -1,0 +1,9 @@
+Codex Plan Note
+
+Strict mode decision:
+- We must decide how/when to enable TypeScript strict mode.
+- Enabling strict now will create десятки/сотни errors across the project because legacy modules are not ready.
+- Options:
+  1) Keep current tsconfig and enforce strict typing only in new modules.
+  2) Add a separate tsconfig.strict.json to run strict checks for new code only.
+  3) Enable strict globally and schedule a refactor to fix legacy modules.
