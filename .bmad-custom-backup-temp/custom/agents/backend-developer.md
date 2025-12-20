@@ -70,8 +70,6 @@ MODE=             # DEV for Swagger
 YEARS=            # Years to check history
 ```
 
-## Когда бэкенд разблокируют
-
 ### Потенциальные улучшения
 - [ ] Добавить новые биржи
 - [ ] Включить Gate.io

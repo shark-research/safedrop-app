@@ -248,8 +248,7 @@ packages/
 
 **Migration Path:**
 - Verify target paths exist before importing: `ls -d apps/b2c || echo "NOT FOUND - use current structure"`
-- Update import paths during transition
-- Keep backend separate (READ-ONLY)
+- Update import paths during transitions
 
 ## ESLint Boundaries
 

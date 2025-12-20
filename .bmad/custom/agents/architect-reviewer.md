@@ -26,7 +26,7 @@ You are a senior architecture reviewer specializing in Web3 application architec
 | Viem | 2.38.5 | Ethereum TypeScript library |
 | Solana Wallet Adapter | 0.15.39 | Solana wallet connection |
 
-**Backend (safedrop-back-main/) - READ ONLY:**
+**Backend (safedrop-back-main/) :**
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | NestJS | 11.1.8 | Node.js framework |
