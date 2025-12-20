@@ -1,25 +1,21 @@
-Codex Plan Note
+# Implementation Notes (Backend)
 
-Strict mode decision:
-- We must decide how/when to enable TypeScript strict mode.
-- Enabling strict now will create tens/hundreds of errors across the project because legacy modules are not ready.
-- Options:
-  1) Keep current tsconfig and enforce strict typing only in new modules.
-  2) Add a separate tsconfig.strict.json to run strict checks for new code only.
-  3) Enable strict globally and schedule a refactor to fix legacy modules.
+Date: 2025-12-20
 
-Work completed in this session:
-- Added Grind linking flow with RPC new-wallet checks, DB first-use gate, dual signatures, and partner push after commit.
-- Added BlockchainService (Solana web3 + EVM ethers) with timeout handling and EVM history fallback.
+## Summary
+- Added Grind linking flow with RPC new-wallet checks, DB first-use gate, dual-signature validation, and partner push after DB commit.
+- Added BlockchainService for Solana (web3.js) and EVM (ethers) with timeout handling and EVM history fallback.
 - Added Postgres module + repository for grind link storage with transaction lock.
 - Added Project Integration service + module.
 - Added DTO + controller endpoint: POST /api/verification/link-grind.
 - Upgraded Winston logger utility with info/warn/error helpers.
-- Installed new deps via npm install.
+- Installed new dependencies.
 
-New files/modules:
+## New Files
 - safedrop-back-main/src/verification/verification.tokens.ts
-- safedrop-back-main/src/verification/interfaces/*
+- safedrop-back-main/src/verification/interfaces/blockchain.interface.ts
+- safedrop-back-main/src/verification/interfaces/grind-wallet-repository.interface.ts
+- safedrop-back-main/src/verification/interfaces/project-integration.interface.ts
 - safedrop-back-main/src/verification/repositories/grind-wallet.repository.ts
 - safedrop-back-main/src/verification/dto/link-grind.dto.ts
 - safedrop-back-main/src/blockchain/blockchain.service.ts
@@ -29,26 +25,27 @@ New files/modules:
 - safedrop-back-main/src/project-integration/project-integration.service.ts
 - safedrop-back-main/src/project-integration/project-integration.module.ts
 
-Modified files:
+## Modified Files
 - safedrop-back-main/src/verification/verification.service.ts
 - safedrop-back-main/src/verification/verification.controller.ts
 - safedrop-back-main/src/verification/verification.module.ts
 - safedrop-back-main/src/logger/file-logger.service.ts
 - safedrop-back-main/package.json
 
-New dependencies:
-- @solana/web3.js, bs58, tweetnacl
-- pg, @types/pg
-
-Required env vars:
-- DATABASE_URL, PG_POOL_MAX
-- SOLANA_RPC_URL, EVM_RPC_URL
-- EVM_HISTORY_API_URL, EVM_HISTORY_API_KEY
+## Env Vars Required
+- DATABASE_URL
+- PG_POOL_MAX (optional)
+- SOLANA_RPC_URL
+- EVM_RPC_URL
+- EVM_HISTORY_API_URL
+- EVM_HISTORY_API_KEY (optional)
 - RPC_TIMEOUT_MS, RPC_RETRY_MAX, RPC_RETRY_DELAY_MS
 - ADDRESS_HASH_SALT
-- PROJECT_INTEGRATION_URL, PROJECT_INTEGRATION_API_KEY
+- PROJECT_INTEGRATION_URL
+- PROJECT_INTEGRATION_API_KEY (optional)
 
-Required SQL:
+## SQL Required
+```sql
 CREATE TABLE grind_wallet_links (
   grind_address TEXT PRIMARY KEY,
   vault_hash TEXT NOT NULL,
@@ -57,3 +54,12 @@ CREATE TABLE grind_wallet_links (
   linked_at TIMESTAMP NOT NULL,
   message_hash TEXT NOT NULL
 );
+```
+
+## Strict Mode Note
+- Global strict mode is not enabled because legacy modules are not strict-ready.
+- New code is written with explicit typing.
+- Decision pending:
+  - keep current config and enforce strict on new modules only
+  - add tsconfig.strict.json
+  - enable strict globally and refactor legacy modules

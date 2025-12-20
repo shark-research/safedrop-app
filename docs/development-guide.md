@@ -203,3 +203,26 @@ Ensure backend `ORIGIN` includes your frontend URL.
 | `build` | `npm run build` | Production build |
 | `start` | `npm run start` | Start production server |
 | `lint` | `npm run lint` | Run ESLint |
+
+---
+
+## Backend Notes (Grind Linking)
+
+### New Endpoint
+- `POST /api/verification/link-grind`
+
+### Additional Backend Env Vars
+```env
+DATABASE_URL=postgres://user:pass@host:5432/db
+PG_POOL_MAX=10
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+EVM_RPC_URL=https://mainnet.infura.io/v3/...
+EVM_HISTORY_API_URL=https://api.etherscan.io/api
+EVM_HISTORY_API_KEY=...
+RPC_TIMEOUT_MS=8000
+RPC_RETRY_MAX=3
+RPC_RETRY_DELAY_MS=300
+ADDRESS_HASH_SALT=change-me
+PROJECT_INTEGRATION_URL=https://partner.example.com/api/safedrop/link
+PROJECT_INTEGRATION_API_KEY=...
+```

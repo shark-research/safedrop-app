@@ -31,6 +31,7 @@
 - [Component Inventory](./component-inventory.md)
 - [Development Guide](./development-guide.md)
 - [API Contracts](./api-contracts.md)
+- [Implementation Notes](./implementation-notes.md)
 
 ### Existing Documentation
 

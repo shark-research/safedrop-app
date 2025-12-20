@@ -172,3 +172,48 @@ http://localhost:3001/api
 - All credentials are transmitted over HTTPS in production
 - Backend doesn't store credentials (stateless verification)
 - Use read-only API keys without withdrawal permissions
+
+---
+
+## POST `/api/verification/link-grind`
+
+**Purpose:** Link a Grind wallet to a Vault wallet after new-wallet checks and dual signature validation.
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "grindAddress": "0x...",
+  "vaultAddress": "0x...",
+  "projectId": "project_123",
+  "chain": "evm",
+  "vaultSignature": "sig...",
+  "grindSignature": "sig...",
+  "nonce": "random",
+  "timestamp": "2025-12-20T12:00:00Z"
+}
+```
+
+**Response (200):**
+```json
+{
+  "status": "linked",
+  "grindAddress": "0x...",
+  "vaultAddress": "0x...",
+  "projectId": "project_123",
+  "chain": "evm",
+  "linkedAt": "2025-12-20T12:00:00.000Z"
+}
+```
+
+**Error Codes:**
+- `GRIND_HISTORY_NOT_EMPTY`
+- `GRIND_BALANCE_NONZERO`
+- `GRIND_ALREADY_USED`
+- `INVALID_GRIND_SIGNATURE`
+- `INVALID_VAULT_SIGNATURE`
+- `RPC_TIMEOUT`

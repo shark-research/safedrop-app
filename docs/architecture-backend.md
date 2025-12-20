@@ -38,3 +38,10 @@ The backend is a **NestJS 11** service acting as the verification engine. It exp
 - **Chain Agnostic**: The backend does not validate chain specifics; it treats wallet addresses as strings.
 - **Withdrawal History**: Checks defaults to 1 year lookback (configurable via `YEARS`).
 - **CORS**: Configurable `ORIGIN` in `main.ts`.
+
+## Recent Updates (2025-12-20)
+- Added Grind linking flow with RPC new-wallet checks, DB first-use gate, dual signatures, and partner push after DB commit.
+- Added BlockchainService for Solana (web3.js) + EVM (ethers).
+- Added Postgres module and grind link repository with transaction lock.
+- Added Project Integration service for partner push.
+- Added endpoint: `POST /api/verification/link-grind`.
