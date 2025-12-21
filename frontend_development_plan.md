@@ -28,7 +28,7 @@
 ## ✅ End-to-End User Flow (Sign in/up -> 2FA -> Vault -> Grind -> Link -> Socials/SSO)
 1. **Sign in** via Google or wallet (existing accounts only). If not linked, user must sign up.
 2. **Sign up** via email code only (no Google sign-up).
-3. **2FA (Google Authenticator)** enrollment required for vault/burner/social/security actions.
+3. **2FA (Google Authenticator)** setup is prompted right after registration. Required for any link/add/change actions (vault/burner/social/security), not required for Google/wallet sign-in.
 4. **Connect Vault**: sign challenge -> CEX API proof -> DeBank first 3 deposits.
 5. **Connect Grind (Burner)**: must have at least 1 on-chain deposit -> CEX API verification against Vault first deposits.
 6. **Dual-signature linking** for Vault + Grind.
@@ -46,12 +46,14 @@
 - [ ] Session/device list + logout everywhere
 
 **AC:**
-- If provider not linked, show "Not linked — sign up with email code" flow
+- If provider not linked, show "Not linked - sign up with email code" flow
 - Clear error states for "already linked to another account"
+- Google/wallet sign-in does not require 2FA
 
 ### Epic 6.0b: 2FA (TOTP) UI (NEW)
 - [ ] Setup wizard: QR code, verification, backup codes
-- [ ] 2FA prompt modal for sensitive actions (vault/burner/socials/security)
+- [ ] Prompt 2FA setup right after registration
+ - [ ] 2FA prompt modal for link/add/change actions (vault/burner/socials/security)
 - [ ] Disable 2FA with code + confirmation
 
 ### Epic 6.0c: Socials + Passkeys (SSO) (NEW)
@@ -458,7 +460,7 @@ Additional auth/security paths:
 ### MVP Core (Phase 0-2):
 - [ ] Sign-up via email code only (no Google sign-up)
 - [ ] Sign-in via Google/wallet for linked accounts
-- [ ] 2FA required for vault/burner/social/security actions
+- [ ] 2FA required for link/add/change actions (vault/burner/social/security), not required for login
 - [ ] Grind requires at least 1 on-chain deposit before verification
 - [ ] Vault verification works end-to-end
 - [ ] **First 3 deposits stored** as fallback

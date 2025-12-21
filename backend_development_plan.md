@@ -31,7 +31,7 @@
 ## ✅ End-to-End User Flow (Auth -> 2FA -> Vault -> Grind -> Link -> Socials/SSO)
 1. **Sign in** via Google or wallet (existing accounts only). If not linked, require email-code sign-up.
 2. **Sign up** via email code (no Google sign-up). After sign-up, link Google and/or wallet.
-3. **2FA (TOTP)** enrollment and step-up required for vault/burner/social/security actions.
+3. **2FA (TOTP)** setup is prompted right after registration. Required for any link/add/change actions (vault/burner/social/security), not required for Google/wallet sign-in.
 4. **Connect Vault**: sign challenge -> CEX API proof -> DeBank first 3 deposits.
 5. **Connect Grind (Burner)**: must have at least 1 on-chain deposit -> CEX API verification against Vault first deposits.
 6. **Dual-signature linking** for Vault + Grind.
@@ -52,6 +52,7 @@
 - No account can be created via Google OAuth (only email code)
 - If Google/wallet already linked to another account -> block and return explicit error
 - Wallet sign-in uses nonce + signature to prove ownership
+- 2FA setup is prompted right after email sign-up
 
 ### Epic 1.1: Database Setup
 - [ ] Postgres + TypeORM/Prisma setup
@@ -189,7 +190,7 @@ POST /api/auth/logout
 - [ ] TOTP setup endpoint (secret + QR)
 - [ ] Verify TOTP code + enable
 - [ ] Backup codes (hashed)
-- [ ] Step-up guard for sensitive endpoints
+- [ ] Step-up guard for link/add/change endpoints
 
 **Endpoints (proposed):**
 ```typescript
@@ -199,7 +200,8 @@ POST /api/auth/2fa/disable
 ```
 
 **AC:**
-- 2FA required for vault/burner/social/security actions
+- 2FA required for link/add/change actions (vault/burner/social/security)
+- Login endpoints do not require 2FA
 - Failed attempts are rate-limited and logged
 
 ### Epic 1.7: Socials + Passkeys (SSO) (NEW)
