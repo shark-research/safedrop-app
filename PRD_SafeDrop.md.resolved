@@ -9,6 +9,17 @@
 
 ---
 
+## Current User Flow (Updated)
+1. Sign in via Google or wallet (linked accounts only). If not linked, sign up via email code.
+2. Sign up via email code only (no Google sign-up), then set up 2FA immediately.
+3. 2FA required for link/add/change actions (vault/burner/social/security), not required for login.
+4. Connect Vault: sign challenge -> CEX API proof -> DeBank first 3 deposits.
+5. Connect Grind (Burner): must have at least 1 inbound deposit -> CEX API verification.
+6. Dual-signature linking for Vault + Grind.
+7. Link socials and optionally enable passkey/biometric SSO.
+
+---
+
 ## 🎯 Value Proposition
 
 **Проблема:** Индустрия airdrop'ов теряет миллионы из-за Sybil-атак и drainer-скамов.
@@ -200,36 +211,42 @@ flowchart TD
 
 ---
 
-## 6. API Эндпоинты
+## 6. API Surface (Updated)
 
-### 6.1 Верификация
+### Auth & Identity
+- POST /api/auth/email/start
+- POST /api/auth/email/verify
+- POST /api/auth/oauth/google
+- POST /api/auth/wallet/challenge
+- POST /api/auth/wallet/verify
+- POST /api/auth/link/google
+- POST /api/auth/link/wallet
+- POST /api/auth/2fa/setup
+- POST /api/auth/2fa/verify
+- POST /api/auth/2fa/disable
+- POST /api/auth/passkey/register/options
+- POST /api/auth/passkey/register/verify
+- POST /api/auth/passkey/authenticate/options
+- POST /api/auth/passkey/authenticate/verify
+- POST /api/socials/link
+- POST /api/socials/unlink
 
-```
-POST /api/verification
-```
+### Wallet Verification
+- POST /api/wallets/verify-vault
+- POST /api/wallets/verify-grind
+- POST /api/wallets/link-grind
+- POST /api/wallets/report-compromised
+- POST /api/wallets/verify-vault-recovery
+- POST /api/wallets/relink-grind
 
-**Request Body:**
-```json
-{
-  "exchange": "binance",
-  "key": "API_KEY",
-  "secret": "API_SECRET",
-  "passphrase": "PASSPHRASE",
-  "wallet": "0x..."
-}
-```
+### Partner API
+- POST /api/partners/register
+- POST /api/campaigns
+- GET /api/campaigns/:id
+- PATCH /api/campaigns/:id/close
+- GET /api/partners/analytics
+- GET /api/trust-scores/:vault_hash
 
-**Response:**
-```json
-{
-  "found": true
-}
-```
-
-### 6.2 Логика верификации
-Бэкенд проверяет историю выводов на биржах за последний период (по умолчанию 1 год) и ищет совпадение с указанным адресом кошелька.
-
----
 
 ## 7. Компоненты UI
 

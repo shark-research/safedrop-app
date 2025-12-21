@@ -72,8 +72,8 @@ Solana Wallet Connection
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 API Call to Backend
-// POST /api/verification
-fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/verification`, {
+// POST /api/wallets/verify-vault
+fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/wallets/verify-vault`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ exchange, key, secret, passphrase, wallet })

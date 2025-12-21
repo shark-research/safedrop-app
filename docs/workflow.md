@@ -1,240 +1,144 @@
-# SafeDrop — Архитектура и Рабочий Процесс
+# SafeDrop Workflow & Architecture
 
-> **Acting as:** `docs-engineer` + `product-manager` агенты
-> **Источник:** [sd.drawio](file:///c:/Users/karte/Downloads/safedrop-app/sd.drawio)
+> **Acting as:** `docs-engineer` + `product-manager`
+> **Diagram Source:** `sd.drawio`
 
 ---
 
-## Обзор Системы
+## System Overview
 
-SafeDrop — платформа для безопасной верификации и защиты airdrop-участников от Sybil-атак и drainer-скамов.
+SafeDrop is a Web3 security platform that verifies ownership (Vault + Grind) while protecting airdrop campaigns from Sybil/drainer risk.
+The current flow adds email-code sign-up, immediate 2FA setup, and partner analytics.
+
+---
+
+## Architecture (Mermaid)
 
 ```mermaid
 graph TD
-    subgraph "Client Layer"
-        U[👤 User] -->|HTTPS| FE[Frontend WebApp]
-        TS[🔌 Third-party Service] -->|HTTPS| IGW[Internal API Gateway]
+    subgraph Client
+        U[User] -->|HTTPS| FE[Frontend WebApp]
     end
-    
-    subgraph "Frontend"
-        FE -->|JS API| CW[CryptoWallet App<br/>MetaMask, Phantom]
-    end
-    
-    subgraph "Backend Services"
+
+    subgraph Backend
         FE -->|HTTPS| GW[API Gateway Public]
-        GW --> VS[Verification Service]
-        GW --> VRS[Verification Request Service]
-        IGW --> VRS
-        VS --> EA[Exchange API<br/>Binance, OKX...]
-        VS --> BGA[Blockchain API Gateway<br/>Infura, Moralis]
-        IGW --> PS[Payments Service]
+        GW --> AUTH[Auth & 2FA Service]
+        GW --> WV[Wallet Verification Service]
+        GW --> PA[Partner Analytics Service]
+        WV --> EX[Exchange API]
+        WV --> BG[Blockchain API Gateway]
     end
-    
-    subgraph "Third-party APIs"
-        CW -->|Tx Sign| BN[Blockchain Node API]
-        BGA --> BN
+
+    subgraph ThirdParty
+        EX[Exchange API] --> CEX[Binance, OKX, ...]
+        BG --> RPC[Blockchain Node API]
     end
 ```
 
 ---
 
-## Компоненты Системы
+## User Flow (Updated)
 
-### 1. Client Layer (Уровень Клиента)
-
-| Компонент | Описание | Протокол |
-|-----------|----------|----------|
-| **User (Client)** | Конечный пользователь приложения | HTTPS |
-| **Frontend (WebApp)** | Next.js 16 + React 19 приложение | HTTPS, JS API |
-| **Third-party Service** | Внешние интеграции (партнёры) | HTTPS |
-
-### 2. Backend Layer
-
-| Компонент | Описание | Связь |
-|-----------|----------|-------|
-| **API Gateway (Public)** | Публичный входной шлюз | Frontend → Backend |
-| **API Gateway (Internal)** | Приватный шлюз для партнёров | Third-party → Backend |
-| **Verification Service** | Верификация CEX аккаунтов | → Exchange API |
-| **Verification Request Service** | Обработка запросов верификации | API Gateways |
-| **Payments Service** | Обработка платежей | Internal Gateway |
-
-### 3. Third-party Integrations
-
-| Сервис | Примеры | Назначение |
-|--------|---------|------------|
-| **CryptoWallet App** | MetaMask, Phantom | Подпись транзакций |
-| **Exchange API** | Binance, OKX, Bybit... | Верификация CEX |
-| **Blockchain API Gateway** | Infura, Moralis | RPC endpoints |
-| **Blockchain Node API** | Ethereum, Solana | Запись транзакций |
+1. Sign in via Google or wallet (linked accounts only) or sign up via email code.
+2. After sign-up, user completes 2FA setup (Google Authenticator).
+3. 2FA required for link/add/change actions (vault/burner/social/security).
+4. Vault verification: signature challenge -> CEX API -> DeBank first 3 deposits.
+5. Grind verification: must have at least 1 inbound deposit -> CEX API proof.
+6. Dual-signature linking (Vault + Grind).
+7. Socials linking + optional passkey/biometric SSO.
 
 ---
 
-## Потоки Данных
-
-### Flow 1: Верификация Пользователя
+## Flow 1: Auth + Vault Verification
 
 ```mermaid
 sequenceDiagram
     actor U as User
     participant FE as Frontend
     participant GW as API Gateway
-    participant VS as Verification Service
-    participant EX as Exchange API
-    
-    U->>FE: 1. Connect Wallet
-    FE->>FE: 2. Get wallet address
-    U->>FE: 3. Enter CEX API Keys
-    FE->>GW: 4. POST /api/verification
-    GW->>VS: 5. Forward request
-    VS->>EX: 6. Query deposit history
-    EX-->>VS: 7. Return wallet matches
-    VS-->>GW: 8. {found: true/false}
-    GW-->>FE: 9. Verification result
-    FE-->>U: 10. Display status
+    participant AUTH as Auth Service
+    participant WV as Wallet Verification
+
+    U->>FE: Sign up via email code
+    FE->>GW: POST /api/auth/email/start
+    FE->>GW: POST /api/auth/email/verify
+    GW->>AUTH: Create session
+    U->>FE: Setup 2FA (TOTP)
+    FE->>GW: POST /api/auth/2fa/setup
+
+    U->>FE: Connect Vault + sign challenge
+    FE->>GW: POST /api/wallets/verify-vault
+    GW->>WV: Verify via CEX + DeBank
+    WV-->>GW: Vault verified
+    GW-->>FE: Result
 ```
 
-### Flow 2: Транзакция (Платёж)
+---
+
+## Flow 2: Grind Verification + Linking
 
 ```mermaid
 sequenceDiagram
     actor U as User
     participant FE as Frontend
-    participant CW as Crypto Wallet
-    participant BC as Blockchain
-    
-    U->>FE: 1. Initiate payment
-    FE->>CW: 2. Request tx signature
-    CW->>U: 3. Confirm transaction
-    U->>CW: 4. Approve
-    CW->>BC: 5. Broadcast transaction
-    BC-->>CW: 6. Tx hash
-    CW-->>FE: 7. Confirm success
-    FE-->>U: 8. Payment complete
+    participant GW as API Gateway
+    participant WV as Wallet Verification
+
+    U->>FE: Connect Grind wallet
+    FE->>GW: POST /api/wallets/verify-grind
+    GW->>WV: Conditional verification
+    WV-->>GW: Status
+    FE->>GW: POST /api/wallets/link-grind
+    GW-->>FE: Linked
 ```
 
-### Flow 3: Third-party Integration (B2B)
+---
+
+## Flow 3: Partner Analytics
 
 ```mermaid
 sequenceDiagram
-    participant TP as Third-party Service
-    participant IGW as Internal Gateway
-    participant VRS as Verification Request Service
-    participant PS as Payments Service
-    
-    TP->>IGW: 1. HTTPS Request
-    IGW->>VRS: 2. Process verification
-    VRS-->>IGW: 3. Status
-    IGW->>PS: 4. Process payment (if needed)
-    PS-->>IGW: 5. Payment result
-    IGW-->>TP: 6. Response
+    participant P as Partner
+    participant GW as API Gateway
+    participant PA as Partner Analytics
+
+    P->>GW: GET /api/partners/analytics
+    GW->>PA: Read aggregates + time-series
+    PA-->>GW: Metrics + freshness
+    GW-->>P: Response
 ```
 
 ---
 
-## Сетевая Архитектура
+## API Endpoints (Current)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         PUBLIC NETWORK                          │
-│  ┌──────────┐    ┌──────────────┐    ┌────────────────────┐    │
-│  │  User    │───→│   Frontend   │───→│  API Gateway       │    │
-│  └──────────┘    │   (WebApp)   │    │  (Public)          │    │
-│                  └──────┬───────┘    └─────────┬──────────┘    │
-│                         │                      │                │
-│  ┌──────────────────────┴──────────────────────┴─────────────┐ │
-│  │                     PRIVATE NETWORK                        │ │
-│  │  ┌─────────────────┐    ┌─────────────────────────────┐   │ │
-│  │  │ Third-party     │───→│ API Gateway (Internal)      │   │ │
-│  │  │ Service         │    └──────────────┬──────────────┘   │ │
-│  │  └─────────────────┘                   │                  │ │
-│  │                                        ▼                  │ │
-│  │  ┌───────────────────────────────────────────────────┐   │ │
-│  │  │                   BACKEND                          │   │ │
-│  │  │  ┌─────────────────┐   ┌──────────────────────┐   │   │ │
-│  │  │  │ Verification    │   │ Verification Request │   │   │ │
-│  │  │  │ Service         │   │ Service              │   │   │ │
-│  │  │  └────────┬────────┘   └──────────────────────┘   │   │ │
-│  │  │           │            ┌──────────────────────┐   │   │ │
-│  │  │           │            │ Payments Service     │   │   │ │
-│  │  │           │            └──────────────────────┘   │   │ │
-│  │  └───────────┼───────────────────────────────────────┘   │ │
-│  └──────────────┼───────────────────────────────────────────┘ │
-│                 │                                              │
-│  ═══════════════│══════════════════════════════════════════   │
-│                 │          THIRD-PARTY SERVICES                │
-│                 ▼                                              │
-│  ┌──────────────────────┐  ┌──────────────────────────────┐   │
-│  │ Exchange API         │  │ Blockchain API Gateway       │   │
-│  │ (Binance, OKX...)    │  │ (Infura, Moralis)            │   │
-│  └──────────────────────┘  └───────────────┬──────────────┘   │
-│                                             │                  │
-│  ┌──────────────────────┐  ┌───────────────▼──────────────┐   │
-│  │ CryptoWallet App     │  │ Blockchain Node API          │   │
-│  │ (MetaMask, Phantom)  │──│                              │   │
-│  └──────────────────────┘  └──────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-```
+### Auth & Identity
+- POST /api/auth/email/start
+- POST /api/auth/email/verify
+- POST /api/auth/oauth/google
+- POST /api/auth/wallet/challenge
+- POST /api/auth/wallet/verify
+- POST /api/auth/2fa/setup
+- POST /api/auth/2fa/verify
+- POST /api/auth/2fa/disable
+
+### Wallet Verification
+- POST /api/wallets/verify-vault
+- POST /api/wallets/verify-grind
+- POST /api/wallets/link-grind
+- POST /api/wallets/verify-vault-recovery
+- POST /api/wallets/relink-grind
+
+### Partner API
+- POST /api/partners/register
+- POST /api/campaigns
+- GET /api/campaigns/:id
+- PATCH /api/campaigns/:id/close
+- GET /api/partners/analytics
 
 ---
 
-## Ключевые API Endpoints
+## Exchanges & Chains
 
-### POST /api/verification
-
-Проверка соответствия кошелька CEX-аккаунту.
-
-**Request:**
-```json
-{
-  "exchange": "binance",
-  "key": "API_KEY",
-  "secret": "API_SECRET",
-  "passphrase": "PASSPHRASE",
-  "wallet": "0x..."
-}
-```
-
-**Response:**
-```json
-{
-  "found": true
-}
-```
-
----
-
-## Поддерживаемые Интеграции
-
-### Биржи (CEX)
-| Exchange | Status |
-|----------|--------|
-| Binance | ✅ Active |
-| OKX | ✅ Active |
-| Bybit | ✅ Active |
-| KuCoin | ✅ Active |
-| Bitget | ✅ Active |
-| MEXC | ✅ Active |
-| Kraken | ✅ Active |
-| BingX | ✅ Active |
-| Gate.io | ❌ Disabled |
-
-### Блокчейны
-| Chain | Type | Status |
-|-------|------|--------|
-| Ethereum | EVM | ✅ |
-| BSC | EVM | ✅ |
-| Polygon | EVM | ✅ |
-| Arbitrum | EVM | ✅ |
-| Optimism | EVM | ✅ |
-| Base | EVM | ✅ |
-| Linea | EVM | ✅ |
-| Solana | Non-EVM | ✅ |
-
----
-
-## See Also
-
-- [Project Overview](./project-overview.md)
-- [Architecture - Frontend](./architecture-frontend.md)
-- [Architecture - Backend](./architecture-backend.md)
-- [API Contracts](./api-contracts.md)
+- **Exchanges:** Binance, OKX, Bybit, Bitget, BingX, Gate, Kucoin, MEXC, Kraken
+- **Chains:** EVM (Ethereum + L2s), Solana

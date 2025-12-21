@@ -289,10 +289,10 @@ import { AlertTriangle } from 'lucide-react';
 import { Warning } from '@phosphor-icons/react';
 
 // ⚠️ Avoid raw fetch for consistency
-const response = await fetch('/api/verification');
+const response = await fetch('/api/wallets/verify-vault');
 
 // ✅ RECOMMENDED - apiClient (axios) for unified error handling
-const response = await apiClient.post('/api/verification', data);
+const response = await apiClient.post('/api/wallets/verify-vault', data);
 
 // ❌ Direct address display
 <span>{address.slice(0, 10)}...</span>

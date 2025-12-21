@@ -13,7 +13,7 @@ Work completed in this session:
 - Added BlockchainService (Solana web3 + EVM ethers) with timeout handling and EVM history fallback.
 - Added Postgres module + repository for grind link storage with transaction lock.
 - Added Project Integration service + module.
-- Added DTO + controller endpoint: POST /api/verification/link-grind.
+- Added DTO + controller endpoint: POST /api/wallets/link-grind.
 - Upgraded Winston logger utility with info/warn/error helpers.
 - Installed new deps via npm install.
 
@@ -57,3 +57,8 @@ CREATE TABLE grind_wallet_links (
   linked_at TIMESTAMP NOT NULL,
   message_hash TEXT NOT NULL
 );
+
+Plan alignment:
+- Auth flow updated: email-code sign-up, Google/wallet sign-in for linked accounts.
+- 2FA required for link/add/change actions (vault/burner/social/security).
+- Canonical endpoints under /api/auth/* and /api/wallets/*, plus /api/partners/analytics.

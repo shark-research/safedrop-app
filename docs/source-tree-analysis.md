@@ -22,6 +22,8 @@ safedrop-front-main/
 └── tsconfig.json        # TypeScript configuration
 ```
 
+Planned: backend will add src/auth for email-code sign-up, wallet/Google sign-in, sessions, and 2FA.
+
 ### 2. Backend (`safedrop-back-main/`)
 
 NestJS 11 application tailored for exchange verification.
@@ -31,7 +33,7 @@ safedrop-back-main/
 ├── src/
 │   ├── verification/    # Core logic (Controller, Service, DTOs)
 │   │   ├── dto/         # Data Transfer Objects
-│   │   ├── verification.controller.ts # Entry point for /api/verification
+│   │   ├── verification.controller.ts # Wallet verification endpoints (planned /api/wallets/verify-vault, /api/wallets/verify-grind)
 │   │   └── verification.service.ts    # Router logic
 │   ├── binance/         # Binance integration
 │   ├── bingx/           # BingX integration

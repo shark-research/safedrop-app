@@ -7,7 +7,7 @@ Date: 2025-12-20
 - Added BlockchainService for Solana (web3.js) and EVM (ethers) with timeout handling and EVM history fallback.
 - Added Postgres module + repository for grind link storage with transaction lock.
 - Added Project Integration service + module.
-- Added DTO + controller endpoint: POST /api/verification/link-grind.
+- Added DTO + controller endpoint: POST /api/wallets/link-grind (canonical name).
 - Upgraded Winston logger utility with info/warn/error helpers.
 - Installed new dependencies.
 
@@ -63,3 +63,6 @@ CREATE TABLE grind_wallet_links (
   - keep current config and enforce strict on new modules only
   - add tsconfig.strict.json
   - enable strict globally and refactor legacy modules
+## Plan Alignment
+- Canonical endpoints now use `/api/auth/*` and `/api/wallets/*`.
+- Auth/2FA + analytics scaling are tracked in the updated development plans.

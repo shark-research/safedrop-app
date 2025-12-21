@@ -9,211 +9,79 @@
 
 ---
 
-## Endpoints
+## Auth & Identity
 
-### POST `/api/verification`
+Sign-up uses email code only. Google/wallet sign-in works only for already linked accounts.
+2FA is required for any link/add/change actions (vault/burner/social/security), but not required for login.
 
-**Purpose:** Verify that a wallet address exists in a user's exchange withdrawal history.
+**Endpoints:**
+- POST `/api/auth/email/start`
+- POST `/api/auth/email/verify`
+- POST `/api/auth/oauth/google`
+- POST `/api/auth/wallet/challenge`
+- POST `/api/auth/wallet/verify`
+- POST `/api/auth/link/google`
+- POST `/api/auth/link/wallet`
+- POST `/api/auth/2fa/setup`
+- POST `/api/auth/2fa/verify`
+- POST `/api/auth/2fa/disable`
+- POST `/api/auth/passkey/register/options`
+- POST `/api/auth/passkey/register/verify`
+- POST `/api/auth/passkey/authenticate/options`
+- POST `/api/auth/passkey/authenticate/verify`
+- POST `/api/socials/link`
+- POST `/api/socials/unlink`
 
-**Headers:**
+**Example:**
+```json
+{ "email": "user@example.com" }
 ```
-Content-Type: application/json
+
+---
+
+## Wallet Verification
+
+**Endpoints:**
+- POST `/api/wallets/verify-vault`
+- POST `/api/wallets/verify-grind`
+- POST `/api/wallets/link-grind`
+- POST `/api/wallets/report-compromised`
+- POST `/api/wallets/verify-vault-recovery`
+- POST `/api/wallets/relink-grind`
+
+**Example (verify-grind):**
+```json
+{ "grind_address": "0x...", "vault_address": "0x...", "user_uid": "user_123", "campaign_id": "cmp_123" }
 ```
 
-**Request Body:**
+---
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `exchange` | `string` | ✅ | Exchange identifier |
-| `key` | `string` | ✅ | API Key |
-| `secret` | `string` | ✅ | API Secret |
-| `passphrase` | `string` | ⚠️ Conditional | Required for Bitget, KuCoin, OKX |
-| `wallet` | `string` | ✅ | Wallet address (EVM `0x...` or Solana) |
+## Partner API
 
-**Supported Exchanges:**
+**Endpoints:**
+- POST `/api/partners/register`
+- POST `/api/campaigns`
+- GET `/api/campaigns/:id`
+- PATCH `/api/campaigns/:id/close`
+- GET `/api/partners/analytics`
+- GET `/api/trust-scores/:vault_hash`
 
-| Exchange | ID | Passphrase | Status |
-|----------|----|-----------:|--------|
-| Binance | `binance` | No | ✅ Active |
-| BingX | `bingx` | No | ✅ Active |
-| Bitget | `bitget` | **Yes** | ✅ Active |
-| Bybit | `bybit` | No | ✅ Active |
-| Gate.io | `gate` | No | ⏸️ Disabled |
-| Kraken | `kraken` | No | ✅ Active |
-| KuCoin | `kucoin` | **Yes** | ✅ Active |
-| MEXC | `mexc` | No | ✅ Active |
-| OKX | `okx` | **Yes** | ✅ Active |
-
-**Example Request:**
-
+**Example response (partners/analytics):**
 ```json
 {
-  "exchange": "binance",
-  "key": "abc123...",
-  "secret": "xyz789...",
-  "wallet": "0x1234567890abcdef1234567890abcdef12345678"
-}
-```
-
-**Example with Passphrase (OKX):**
-
-```json
-{
-  "exchange": "okx",
-  "key": "abc123...",
-  "secret": "xyz789...",
-  "passphrase": "my-passphrase",
-  "wallet": "0x1234567890abcdef1234567890abcdef12345678"
+  "totals": { "verified": 0, "approved": 0, "rejected": 0, "pending": 0, "linked": 0 },
+  "avg_trust_score": 0,
+  "approval_rate": 0,
+  "verification_latency_ms": { "p50": 0, "p95": 0 },
+  "verifications_per_day": [],
+  "top_reject_reasons": [],
+  "last_updated_at": "2025-12-20T00:00:00Z",
+  "freshness_s": 0
 }
 ```
 
 ---
 
-**Response:**
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `found` | `boolean` | `true` if wallet found in withdrawal history |
-
-**Success Response (200):**
-```json
-{
-  "found": true
-}
-```
-
-**Wallet Not Found (200):**
-```json
-{
-  "found": false
-}
-```
-
----
-
-**Error Responses:**
-
-| Status | Cause | Body |
-|--------|-------|------|
-| `400` | Validation error | `{ "message": "..." }` |
-| `401` | Invalid API credentials | `{ "message": "..." }` |
-| `500` | Exchange API error | `{ "message": "..." }` |
-
----
-
-## Verification Logic
-
-1. Backend receives API credentials + wallet address
-2. Connects to exchange API using provided credentials
-3. Fetches withdrawal history for configured period (default: 1 year via `YEARS` env)
-4. Searches for matching wallet address in withdrawal destinations
-5. Returns `{ found: true }` if match found
-
-**Note:** Backend is **chain-agnostic**. It treats wallet addresses as plain strings. Chain validation is frontend responsibility.
-
----
-
-## Frontend Integration
-
-### TypeScript Types
-
-```typescript
-interface VerificationRequest {
-  exchange: 'binance' | 'bingx' | 'bitget' | 'bybit' | 'kraken' | 'kucoin' | 'mexc' | 'okx';
-  key: string;
-  secret: string;
-  passphrase?: string;
-  wallet: string;
-}
-
-interface VerificationResponse {
-  found: boolean;
-}
-```
-
-### Fetch Example
-
-```typescript
-const verifyWallet = async (data: VerificationRequest): Promise<VerificationResponse> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/verification`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }
-  );
-  
-  if (!response.ok) {
-    throw new Error('Verification failed');
-  }
-  
-  return response.json();
-};
-```
-
----
-
-## Swagger Documentation
-
-When backend runs in `MODE=DEV`, Swagger UI is available at:
-
-```
-http://localhost:3001/api
-```
-
----
-
-## Security Notes
-
-> ⚠️ **API credentials are sensitive!**
-
-- Never log or persist API keys client-side
-- All credentials are transmitted over HTTPS in production
-- Backend doesn't store credentials (stateless verification)
-- Use read-only API keys without withdrawal permissions
-
----
-
-## POST `/api/verification/link-grind`
-
-**Purpose:** Link a Grind wallet to a Vault wallet after new-wallet checks and dual signature validation.
-
-**Headers:**
-```
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "grindAddress": "0x...",
-  "vaultAddress": "0x...",
-  "projectId": "project_123",
-  "chain": "evm",
-  "vaultSignature": "sig...",
-  "grindSignature": "sig...",
-  "nonce": "random",
-  "timestamp": "2025-12-20T12:00:00Z"
-}
-```
-
-**Response (200):**
-```json
-{
-  "status": "linked",
-  "grindAddress": "0x...",
-  "vaultAddress": "0x...",
-  "projectId": "project_123",
-  "chain": "evm",
-  "linkedAt": "2025-12-20T12:00:00.000Z"
-}
-```
-
-**Error Codes:**
-- `GRIND_HISTORY_NOT_EMPTY`
-- `GRIND_BALANCE_NONZERO`
-- `GRIND_ALREADY_USED`
-- `INVALID_GRIND_SIGNATURE`
-- `INVALID_VAULT_SIGNATURE`
-- `RPC_TIMEOUT`
+## Notes
+- CEX API credentials are used for verification and never stored.
+- For full data model and scaling notes, see `backend_development_plan.md`.

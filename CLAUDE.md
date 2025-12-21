@@ -58,13 +58,12 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 ### API Call to Backend
 ```tsx
-// POST /api/verification
-fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/verification`, {
+// POST /api/wallets/verify-vault
+fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/wallets/verify-vault`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ exchange, key, secret, passphrase, wallet })
+  body: JSON.stringify({ address, signature, message, cex: { exchange, key, secret, passphrase } })
 });
-// Response: { found: boolean }
 ```
 
 ## CSS Variables
@@ -126,11 +125,14 @@ Analyze the request topic and choose the matching specialist:
 3.  **Pattern Matching**: Respect the codebase styles, patterns, and established conventions.
 4.  **Safety**: Verify actions for irreversible consequences (e.g. deleting data).
 
-## User Flow (4 Steps)
-1. **Connect Wallet** - EVM (RainbowKit) or Solana (Wallet Adapter)
-2. **Connect Exchange** - Enter API Key/Secret, verify via backend
-3. **Transaction** - Pay from connected wallet
-4. **Verification** - Connect new wallet, finish
+## User Flow (Updated)
+1. **Sign in** via Google or wallet (linked accounts only). If not linked, sign up via email code.
+2. **Sign up** via email code only (no Google sign-up) and set up 2FA immediately.
+3. **2FA** required for link/add/change actions (vault/burner/social/security), not required for login.
+4. **Connect Vault**: sign challenge -> CEX API proof -> DeBank first 3 deposits.
+5. **Connect Grind**: must have at least 1 inbound deposit -> CEX API verification.
+6. **Dual-signature linking** for Vault + Grind.
+7. **Link socials** + optional passkey/biometric SSO.
 
 ## Development Commands
 ```bash

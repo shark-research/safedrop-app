@@ -1,10 +1,11 @@
 # Architecture - Backend (`safedrop-back-main`)
 
 > **status**: **EDITABLE**
-> **note**: Backend is now fully editable.
+> **note**: Backend is actively evolving alongside the new auth + verification flow.
 
 ## Executive Summary
-The backend is a **NestJS 11** service acting as the verification engine. It exposes a unified API for checking wallet withdrawal history across multiple centralized exchanges (CEXs).
+The backend is a **NestJS 11** service that handles **auth/2FA**, **vault & grind verification**, **partner analytics**, and **exchange integrations**.
+It is chain-agnostic and focuses on proof-of-ownership and risk scoring without storing raw PII.
 
 ## Technology Stack
 
@@ -13,38 +14,50 @@ The backend is a **NestJS 11** service acting as the verification engine. It exp
 | **Framework** | NestJS | 11.1.8 | Modular, scalable Node.js framework. |
 | **Language** | TypeScript | 5.x | Type safety. |
 | **API Docs** | Swagger | 11.2.1 | API exploration and documentation. |
-| **HTTP Client** | Axios | 1.13.1 | For external exchange API requests. |
+| **HTTP Client** | Axios | 1.13.1 | External exchange API requests. |
 | **Validation** | class-validator | 0.14.2 | DTO validation pipelines. |
+| **DB** | Postgres | 15+ | Analytics + auth storage. |
 
 ## Architecture Pattern
 **Service-Oriented / Controller-Service**
-- **Controllers**: Handle HTTP requests (e.g., `verification.controller.ts`).
-- **Services**: Business logic (e.g., `verification.service.ts`).
-- **Use Cases**: Each exchange integration (Binance, OKX, etc.) is a separate module/service.
+- **Controllers**: HTTP endpoints (auth, wallets, partners).
+- **Services**: Business logic (verification, analytics, auth).
+- **Adapters**: Exchange and blockchain integrations.
 
-## Core Modules
+## Core Modules (Planned + In-Flight)
 
-### 1. Verification Module (`src/verification`)
-- Central entry point.
-- Routes requests to specific exchange services based on the `exchange` parameter.
+### 1. Auth Module (`src/auth`)
+- Email-code sign-up, OAuth sign-in, wallet signature sign-in.
+- Sessions, 2FA (TOTP), passkeys (WebAuthn).
 
-### 2. Exchange Services
-- `src/binance/`: Implementation of Binance checks.
-- `src/okx/`: Implementation of OKX checks.
-- ...and others.
-- **Logic**: Each service implements `checkWallet(key, secret, wallet)` pattern.
+### 2. Wallet Verification Module (`src/verification`)
+- Vault verification with CEX API + DeBank first deposits.
+- Grind verification + dual-signature linking.
+- Recovery flow and multi-CEX fallback.
+
+### 3. Partner Analytics Module (`src/partners` or `src/analytics`)
+- Campaign CRUD.
+- Analytics aggregations with Redis caching.
+
+### 4. Exchange Services (`src/binance`, `src/okx`, ...)
+- CEX API connectors for withdrawal history.
+
+### 5. Blockchain Module (`src/blockchain`)
+- EVM + Solana history lookups.
+
+### 6. Database Module (`src/database`)
+- Postgres pool + repository layer.
 
 ## Rules & Constraints
-- **Chain Agnostic**: The backend does not validate chain specifics; it treats wallet addresses as strings.
-- **Withdrawal History**: Checks defaults to 1 year lookback (configurable via `YEARS`).
-- **CORS**: Configurable `ORIGIN` in `main.ts`.
+- **Chain Agnostic**: Treat wallet addresses as strings; chain restrictions are on the frontend.
+- **No Raw PII**: Store hashed identifiers only (master account hashes, wallet hashes).
+- **2FA Gate**: Required for link/add/change actions; login does not require 2FA.
 
-## Recent Updates (2025-12-20)
-- Added Grind linking flow with RPC new-wallet checks, DB first-use gate, dual signatures, and partner push after DB commit.
-- Added BlockchainService for Solana (web3.js) + EVM (ethers).
-- Added Postgres module and grind link repository with transaction lock.
-- Added Project Integration service for partner push.
-- Added endpoint: `POST /api/verification/link-grind`.
+## Current Plan Updates (2025-12-20)
+- Canonical endpoints standardized under `/api/auth/*` and `/api/wallets/*`.
+- Partner analytics scaling path defined (events + aggregates + cache).
+- Reason-code enum defined for rejected verifications.
+- Vault recovery and multi-CEX fallback specified.
 
 ## Configuration (Backend)
 
@@ -52,6 +65,15 @@ The backend is a **NestJS 11** service acting as the verification engine. It exp
 ```
 DATABASE_URL
 PG_POOL_MAX
+AUTH_JWT_SECRET
+AUTH_JWT_TTL_SECONDS
+AUTH_JWT_ISSUER
+AUTH_JWT_AUDIENCE
+EMAIL_SMTP_HOST
+EMAIL_SMTP_PORT
+EMAIL_SMTP_USER
+EMAIL_SMTP_PASS
+EMAIL_FROM
 SOLANA_RPC_URL
 EVM_RPC_URL
 EVM_HISTORY_API_URL
@@ -64,7 +86,7 @@ PROJECT_INTEGRATION_URL
 PROJECT_INTEGRATION_API_KEY
 ```
 
-### Required SQL
+### Required SQL (see full list in backend_development_plan.md)
 ```sql
 CREATE TABLE grind_wallet_links (
   grind_address TEXT PRIMARY KEY,

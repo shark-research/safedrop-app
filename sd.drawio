@@ -65,10 +65,10 @@
         <mxCell id="_sDuG8XZUeilnzMXDQTC-3" value="Api Gateway&lt;div&gt;(Public)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="490" y="350" width="120" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="_sDuG8XZUeilnzMXDQTC-6" value="Verification service" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="_sDuG8XZUeilnzMXDQTC-6" value="Wallet Verification service" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="680" y="350" width="120" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="_sDuG8XZUeilnzMXDQTC-7" value="Verification request service" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="_sDuG8XZUeilnzMXDQTC-7" value="Auth & Analytics service" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="680" y="450" width="120" height="40" as="geometry" />
         </mxCell>
         <mxCell id="_sDuG8XZUeilnzMXDQTC-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="_sDuG8XZUeilnzMXDQTC-5" target="_sDuG8XZUeilnzMXDQTC-5" edge="1">
@@ -197,7 +197,7 @@
             <mxPoint x="11" y="-2" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ZoP_CU93hpUfJQ5ccJKm-9" value="&lt;font style=&quot;font-size: 8px;&quot;&gt;authorize wallet&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="ZoP_CU93hpUfJQ5ccJKm-9" value="&lt;font style=&quot;font-size: 8px;&quot;&gt;sign-in challenge&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="630" y="240" width="120" height="14" as="geometry" />
         </mxCell>
       </root>

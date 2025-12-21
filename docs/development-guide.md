@@ -65,7 +65,20 @@ NEXT_PUBLIC_SOLANA_RPC=https://api.devnet.solana.com
 PORT=3001
 MODE=DEV
 ORIGIN=http://localhost:3000
-YEARS=1
+
+DATABASE_URL=postgres://user:pass@host:5432/db
+PG_POOL_MAX=10
+
+AUTH_JWT_SECRET=change-me
+AUTH_JWT_TTL_SECONDS=3600
+AUTH_JWT_ISSUER=safedrop
+AUTH_JWT_AUDIENCE=safedrop-web
+
+EMAIL_SMTP_HOST=smtp.example.com
+EMAIL_SMTP_PORT=587
+EMAIL_SMTP_USER=user@example.com
+EMAIL_SMTP_PASS=change-me
+EMAIL_FROM=SafeDrop <no-reply@example.com>
 ```
 
 ---
@@ -74,26 +87,26 @@ YEARS=1
 
 ```
 safedrop-app/
-├── safedrop-front-main/          # ✅ EDITABLE
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── page.tsx          # Main 4-step wizard
-│   │   │   ├── layout.tsx        # Root layout
-│   │   │   └── globals.css       # CSS variables
-│   │   ├── components/
-│   │   │   ├── button/           # Primary/Secondary button
-│   │   │   └── info/             # CEX instructions modal
-│   │   └── providers/
-│   │       └── Web3Provider.tsx  # Wallet contexts
-│   ├── public/assets/            # Exchange screenshots
-│   └── package.json
-│
-├── safedrop-back-main/           # ✅ EDITABLE
-│   └── src/
-│       ├── verification/         # Main API
-│       └── [exchange]/           # Exchange modules
-│
-└── docs/                         # 📚 Documentation
+??? safedrop-front-main/
+?   ??? src/
+?   ?   ??? app/
+?   ?   ?   ??? sign-in/page.tsx
+?   ?   ?   ??? sign-up/page.tsx
+?   ?   ?   ??? verify/vault/page.tsx
+?   ?   ?   ??? verify/grind/page.tsx
+?   ?   ?   ??? partner/page.tsx
+?   ?   ??? api/
+?   ?   ??? components/
+?   ??? package.json
+??? safedrop-back-main/
+?   ??? src/
+?   ?   ??? auth/
+?   ?   ??? verification/
+?   ?   ??? blockchain/
+?   ?   ??? database/
+?   ?   ??? project-integration/
+?   ??? package.json
+??? docs/
 ```
 
 ---
@@ -113,9 +126,6 @@ cd safedrop-front-main && npm run dev
 
 # Build check
 npm run build
-
-# Commit
-git add . && git commit -m "feat: my feature"
 ```
 
 ### 2. Code Quality
@@ -128,53 +138,47 @@ npm run lint
 npm run build
 ```
 
-### 3. Testing Wallet Flows
+---
 
-**EVM (MetaMask):**
-1. Connect MetaMask to Base Sepolia testnet
-2. Get testnet ETH from faucet
-3. Complete 4-step flow
+## Testing Wallet Flows (Updated)
 
-**Solana (Phantom):**
-1. Switch Phantom to Devnet
-2. Airdrop SOL via CLI: `solana airdrop 1`
-3. Complete 4-step flow
+**1) Sign-up + 2FA:**
+- Sign up via email code (no Google sign-up)
+- Set up Google Authenticator immediately after registration
+
+**2) Vault verification:**
+- Connect vault wallet
+- Provide CEX API keys
+- Verify first 3 deposits
+
+**3) Grind verification + linking:**
+- Grind wallet must have at least 1 inbound deposit
+- Verify via CEX API and link using dual signatures
 
 ---
 
-## Key Patterns
-
-### Wallet Connection (EVM)
+## API Calls
 
 ```tsx
-import { useAccount, useConnect, useSendTransaction } from 'wagmi';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-
-// Use the account
-const { address, isConnected } = useAccount();
-```
-
-### Wallet Connection (Solana)
-
-```tsx
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-
-const { publicKey, sendTransaction } = useWallet();
-```
-
-### API Calls
-
-```tsx
-const verifyExchange = async (data: VerificationRequest) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/verification`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  return res.json(); // { found: boolean }
+const verifyVault = async (payload) => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/wallets/verify-vault`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    },
+  );
+  return res.json();
 };
 ```
+
+---
+
+## Backend Notes (Linking + Analytics)
+
+- `POST /api/wallets/link-grind` performs dual-signature linking.
+- `GET /api/partners/analytics` serves aggregated metrics (SLA <= 60s).
 
 ---
 
@@ -192,37 +196,3 @@ rm -rf node_modules && npm install
 
 ### API CORS error
 Ensure backend `ORIGIN` includes your frontend URL.
-
----
-
-## Scripts Reference
-
-| Script | Command | Description |
-|--------|---------|-------------|
-| `dev` | `npm run dev` | Start dev server with Turbopack |
-| `build` | `npm run build` | Production build |
-| `start` | `npm run start` | Start production server |
-| `lint` | `npm run lint` | Run ESLint |
-
----
-
-## Backend Notes (Grind Linking)
-
-### New Endpoint
-- `POST /api/verification/link-grind`
-
-### Additional Backend Env Vars
-```env
-DATABASE_URL=postgres://user:pass@host:5432/db
-PG_POOL_MAX=10
-SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
-EVM_RPC_URL=https://mainnet.infura.io/v3/...
-EVM_HISTORY_API_URL=https://api.etherscan.io/api
-EVM_HISTORY_API_KEY=...
-RPC_TIMEOUT_MS=8000
-RPC_RETRY_MAX=3
-RPC_RETRY_DELAY_MS=300
-ADDRESS_HASH_SALT=change-me
-PROJECT_INTEGRATION_URL=https://partner.example.com/api/safedrop/link
-PROJECT_INTEGRATION_API_KEY=...
-```

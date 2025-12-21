@@ -28,7 +28,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 ```
 
 ## API
-POST /api/verification → { exchange, key, secret, passphrase?, wallet }
+POST /api/wallets/verify-vault -> { address, signature, message, cex?: { exchange, key, secret, passphrase? } }
 
 ## CSS
 --background: #0a0a0a; --sefa-cyan: #22D3EE;
