@@ -28,7 +28,30 @@
 
 ***
 
+## ✅ End-to-End User Flow (Auth -> 2FA -> Vault -> Grind -> Link -> Socials/SSO)
+1. **Sign in** via Google or wallet (existing accounts only). If not linked, require email-code sign-up.
+2. **Sign up** via email code (no Google sign-up). After sign-up, link Google and/or wallet.
+3. **2FA (TOTP)** enrollment and step-up required for vault/burner/social/security actions.
+4. **Connect Vault**: sign challenge -> CEX API proof -> DeBank first 3 deposits.
+5. **Connect Grind (Burner)**: must have at least 1 on-chain deposit -> CEX API verification against Vault first deposits.
+6. **Dual-signature linking** for Vault + Grind.
+7. **Link socials** (Twitter/Discord) and optionally enable **passkey/biometric** (WebAuthn) for SSO.
+
+***
+
 ## 🧱 Phase 0: Data Foundation (2-3 недели)
+
+### Epic 1.0: Identity & Auth Foundation (NEW)
+- [ ] Email-code sign-up (no Google sign-up flow)
+- [ ] Sign-in via Google OAuth (existing accounts only)
+- [ ] Sign-in via wallet challenge/nonce + signature (existing accounts only)
+- [ ] Account linking/unlinking (Google, wallet) with uniqueness checks
+- [ ] Session management (refresh tokens, device list)
+
+**AC:**
+- No account can be created via Google OAuth (only email code)
+- If Google/wallet already linked to another account -> block and return explicit error
+- Wallet sign-in uses nonce + signature to prove ownership
 
 ### Epic 1.1: Database Setup
 - [ ] Postgres + TypeORM/Prisma setup
@@ -36,6 +59,20 @@
 
 **Tables:**
 ```sql
+-- Auth/identity
+users (user_uid, email, email_verified_at, role, created_at, updated_at)
+user_identities (
+  user_uid,
+  provider,        -- "google" | "wallet" | "twitter" | "discord"
+  provider_uid,    -- google sub or wallet address (normalized)
+  purpose,         -- "login" | "social"
+  created_at
+)
+email_login_codes (user_uid, code_hash, expires_at, used_at, attempts)
+auth_sessions (session_id, user_uid, refresh_token_hash, expires_at, last_seen_at, device_info)
+totp_settings (user_uid, secret_enc, enabled_at, backup_codes_hash)
+passkeys (user_uid, credential_id, public_key, sign_count, device_name, created_at)
+
 -- Core entities
 user_profile (user_uid, created_at, updated_at)
 
@@ -115,10 +152,29 @@ campaign_timeseries_hourly (
 - [ ] Функции `vault_hash()`, `grind_hash()`, `cex_master_hash()`
 - [ ] **AC:** Нет хранения raw mapping Vault↔Grind; master_account_id хранится только в виде хеша
 
-### Epic 1.3: User Service
-- [ ] CRUD профиля, статусы verification
-- [ ] Repository pattern: `UserRepository`, `VerificationRepository`
-- [ ] Endpoints: `POST /users`, `GET /users/:uid`
+### Epic 1.3: User + Auth Service
+**Split responsibilities:**
+- [ ] User profile CRUD (display name, settings, status)
+- [ ] Auth endpoints (email code, OAuth, wallet login, sessions)
+- [ ] Account linking endpoints (google/wallet/socials)
+
+**Endpoints (proposed):**
+```typescript
+POST /api/auth/email/start       // send code
+POST /api/auth/email/verify      // verify code + create account
+POST /api/auth/oauth/google      // sign-in for existing accounts
+POST /api/auth/wallet/challenge  // nonce
+POST /api/auth/wallet/verify     // signature
+POST /api/auth/link/google
+POST /api/auth/link/wallet
+POST /api/auth/sessions/refresh
+POST /api/auth/logout
+```
+
+**AC:**
+- Sign-up only via email code
+- OAuth/wallet sign-in returns "not_linked" if provider not linked
+- Duplicate linking is rejected (unique constraint on provider_uid)
 
 ### Epic 1.4: External Config
 - [ ] ConfigService для DeBank, RPC endpoints, CEX API keys
@@ -128,6 +184,41 @@ campaign_timeseries_hourly (
 - [ ] Winston structured logs (JSON)
 - [ ] Rotate daily, keep 30 days
 - [ ] AC: audit-лог событий без чувствительных данных
+
+### Epic 1.6: 2FA (TOTP) + Step-Up Guard (NEW)
+- [ ] TOTP setup endpoint (secret + QR)
+- [ ] Verify TOTP code + enable
+- [ ] Backup codes (hashed)
+- [ ] Step-up guard for sensitive endpoints
+
+**Endpoints (proposed):**
+```typescript
+POST /api/auth/2fa/setup
+POST /api/auth/2fa/verify
+POST /api/auth/2fa/disable
+```
+
+**AC:**
+- 2FA required for vault/burner/social/security actions
+- Failed attempts are rate-limited and logged
+
+### Epic 1.7: Socials + Passkeys (SSO) (NEW)
+- [ ] Link/unlink Twitter/Discord (OAuth)
+- [ ] WebAuthn passkey enrollment + login (optional)
+
+**Endpoints (proposed):**
+```typescript
+POST /api/socials/link
+POST /api/socials/unlink
+POST /api/auth/passkey/register/options
+POST /api/auth/passkey/register/verify
+POST /api/auth/passkey/authenticate/options
+POST /api/auth/passkey/authenticate/verify
+```
+
+**AC:**
+- Socials can be linked after 2FA
+- Passkeys are optional but usable for sign-in
 
 ***
 
@@ -269,7 +360,8 @@ Body: { grind_address, vault_address, user_uid, campaign_id }
 **Algorithm (CORRECTED):**
 1. Analyze grind state (age, tx_count, balance)
 
-2. For FRESH Grind (age < 7d, tx_count == 0):
+2. For FRESH Grind (age < 7d):
+   - If tx_count == 0 OR no inbound deposit -> REJECT("NO_ONCHAIN_ACTIVITY")
    - DON'T auto-approve
    - Require CEX API verification:
    
@@ -303,6 +395,7 @@ Body: { grind_address, vault_address, user_uid, campaign_id }
    - ELSE → REJECTED
 
 **AC:**
+- Fresh Grind requires at least 1 on-chain deposit
 - Fresh Grind requires CEX API (NO auto-approve)
 - User can provide API for ANY of first 3 deposit CEXs
 - REJECT only if no CEX API for ALL 3 sources
@@ -345,6 +438,15 @@ Body: { project_name, contact_email }
 Response: { api_key, secret }
 ```
 - [ ] API ключи выдаются, логируется доступ
+
+### Epic 4.1b: Partner Portal Auth (NEW)
+- [ ] Partner user account created/linked on onboarding
+- [ ] Role-based access control for partner portal routes
+- [ ] Partner portal sessions (reuse auth stack + 2FA)
+
+**AC:**
+- Only partner-role accounts can access `/api/partners/*` portal endpoints
+- Partner users can enable 2FA and passkeys
 
 ### Epic 4.2: Campaign CRUD
 ```typescript
@@ -428,6 +530,7 @@ Response: {
 - `TEMPORAL_IMPOSSIBILITY` - grind funded before vault or before CEX account creation
 - `LOW_CONFIDENCE_CORRELATION` - time/amount correlation below threshold
 - `ONCHAIN_HISTORY_UNAVAILABLE` - cannot fetch first deposit history (DeBank/RPC)
+- `NO_ONCHAIN_ACTIVITY` - grind wallet has no inbound deposit
 - `MIN_TRUST_SCORE_NOT_MET` - below campaign minimum score
 - `VAULT_COMPROMISED` - vault marked compromised/recovered
 - `GRIND_ALREADY_LINKED` - grind already linked/verified

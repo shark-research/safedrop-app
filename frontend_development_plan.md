@@ -25,6 +25,40 @@
 
 ***
 
+## ✅ End-to-End User Flow (Sign in/up -> 2FA -> Vault -> Grind -> Link -> Socials/SSO)
+1. **Sign in** via Google or wallet (existing accounts only). If not linked, user must sign up.
+2. **Sign up** via email code only (no Google sign-up).
+3. **2FA (Google Authenticator)** enrollment required for vault/burner/social/security actions.
+4. **Connect Vault**: sign challenge -> CEX API proof -> DeBank first 3 deposits.
+5. **Connect Grind (Burner)**: must have at least 1 on-chain deposit -> CEX API verification against Vault first deposits.
+6. **Dual-signature linking** for Vault + Grind.
+7. **Link socials** and optionally enable **passkey/biometric** (WebAuthn) for SSO.
+
+***
+
+## 🧩 Phase 4: Identity & Security UI (2-3 недели)
+
+### Epic 6.0: Auth & Account Linking UI (NEW)
+- [ ] Routes: `src/app/sign-in/page.tsx`, `src/app/sign-up/page.tsx`, `src/app/settings/security/page.tsx`
+- [ ] Sign-in options: Google OAuth + wallet (only if already linked)
+- [ ] Sign-up via email code (no Google sign-up)
+- [ ] Link/unlink Google + wallet inside settings
+- [ ] Session/device list + logout everywhere
+
+**AC:**
+- If provider not linked, show "Not linked — sign up with email code" flow
+- Clear error states for "already linked to another account"
+
+### Epic 6.0b: 2FA (TOTP) UI (NEW)
+- [ ] Setup wizard: QR code, verification, backup codes
+- [ ] 2FA prompt modal for sensitive actions (vault/burner/socials/security)
+- [ ] Disable 2FA with code + confirmation
+
+### Epic 6.0c: Socials + Passkeys (SSO) (NEW)
+- [ ] Link Twitter/Discord in settings
+- [ ] WebAuthn passkey enroll + sign-in option
+- [ ] Status UI (enabled/disabled, last used)
+
 ## 🧩 Phase 5: Frontend Flows (2-3 недели)
 
 ### Epic 6.1: `/verify/vault` UI
@@ -69,6 +103,7 @@
 **Tasks:**
 - [ ] Page route: `src/app/verify/grind/page.tsx`
 - [ ] Wallet state analysis (fresh/legacy/vault-funded)
+- [ ] If no inbound deposit, block flow and show "Fund wallet with 1 deposit" message
 - [ ] Warning UI для non-zero history wallets
 - [ ] **CEX Selection UI:** "Provide API for one of the detected CEX sources from `detected_cex_sources` (max 3)"
 - [ ] Dual-signature modal flow
@@ -97,6 +132,15 @@ SafeDrop:
 
 **New API endpoints:**
 ```typescript
+// src/api/authApi.ts
+export const startEmailLogin = async (email: string) => { ... }
+export const verifyEmailCode = async (email: string, code: string) => { ... }
+export const googleSignIn = async (idToken: string) => { ... }
+export const walletChallenge = async (address: string) => { ... }
+export const walletVerify = async (address: string, signature: string) => { ... }
+export const refreshSession = async () => { ... }
+export const logout = async () => { ... }
+
 // src/api/vaultApi.ts
 export const verifyVault = async (address: string, signature: string) => { ... }
 export const verifyGrind = async (grindAddress: string, vaultAddress: string) => { ... }
@@ -105,9 +149,11 @@ export const getTrustScore = async (vaultHash: string) => { ... }
 ```
 
 **Tasks:**
+- [ ] Create `src/api/authApi.ts`
 - [ ] Create `src/api/vaultApi.ts`
 - [ ] Create `src/api/grindApi.ts`
 - [ ] Create `src/api/partnerApi.ts`
+- [ ] Create `src/api/securityApi.ts` (2FA, passkeys, socials)
 - [ ] Add retry/backoff logic
 - [ ] Error handling with user-friendly messages
 - [ ] TypeScript types for all responses
@@ -151,6 +197,7 @@ export const getTrustScore = async (vaultHash: string) => { ... }
 - `TEMPORAL_IMPOSSIBILITY` - "Temporal mismatch" - Grind funded before vault or before CEX account creation
 - `LOW_CONFIDENCE_CORRELATION` - "Low correlation" - Time/amount correlation below threshold
 - `ONCHAIN_HISTORY_UNAVAILABLE` - "History unavailable" - Cannot fetch first deposit history
+- `NO_ONCHAIN_ACTIVITY` - "No on-chain activity" - Grind wallet has no inbound deposit
 - `MIN_TRUST_SCORE_NOT_MET` - "Trust score too low" - Below campaign minimum score
 - `VAULT_COMPROMISED` - "Vault compromised" - Vault marked compromised/recovered
 - `GRIND_ALREADY_LINKED` - "Already linked" - Grind already linked/verified
@@ -174,7 +221,7 @@ export const getTrustScore = async (vaultHash: string) => { ... }
 - [ ] `TrustScoreQuery` component
 - [ ] `AnalyticsDashboard` component
 - [ ] Subcomponents: `TotalsStrip`, `TimeSeriesChart`, `RejectReasonsTable`, `ApprovalRateCard`, `LastUpdatedBadge`
-- [ ] Partner API authentication
+- [ ] Partner API authentication + role gate
 - [ ] Auto-refresh polling (15-30s) + manual refresh button
 - [ ] Optimistic increment (optional) for local session actions
 - [ ] Empty/zero-state messaging for new campaigns
@@ -293,6 +340,24 @@ export const getTrustScore = async (vaultHash: string) => { ... }
 
 **User-facing API:**
 ```typescript
+POST /api/auth/email/start
+POST /api/auth/email/verify
+POST /api/auth/oauth/google
+POST /api/auth/wallet/challenge
+POST /api/auth/wallet/verify
+POST /api/auth/link/google
+POST /api/auth/link/wallet
+POST /api/auth/sessions/refresh
+POST /api/auth/logout
+POST /api/auth/2fa/setup
+POST /api/auth/2fa/verify
+POST /api/auth/2fa/disable
+POST /api/auth/passkey/register/options
+POST /api/auth/passkey/register/verify
+POST /api/auth/passkey/authenticate/options
+POST /api/auth/passkey/authenticate/verify
+POST /api/socials/link
+POST /api/socials/unlink
 POST /api/wallets/verify-vault
 POST /api/wallets/verify-grind
 POST /api/wallets/link-grind
@@ -312,19 +377,28 @@ PATCH /api/campaigns/:id/close
 GET /api/partners/analytics
 ```
 
+Additional auth/security paths:
+- `safedrop-front-main/src/app/sign-in/page.tsx`
+- `safedrop-front-main/src/app/sign-up/page.tsx`
+- `safedrop-front-main/src/app/settings/security/page.tsx`
+- `safedrop-front-main/src/api/authApi.ts`
+- `safedrop-front-main/src/api/securityApi.ts`
+- `safedrop-front-main/src/components/auth/*`
+- `safedrop-front-main/src/components/security/*`
+
 ***
 
 ## 🏁 Sprint Allocation (FINAL)
 
 | Sprint | Weeks | Focus | Deliverable |
 |--------|-------|-------|-------------|
-| **Sprint 0** | 1-2 | Phase 0 | БД + схемы + User Service |
+| **Sprint 0** | 1-2 | Phase 0 + Auth/2FA | БД + схемы + Auth + 2FA core |
 | **Sprint 1** | 3-4 | Phase 1 (Part 1) | Signature + CEX API |
 | **Sprint 2** | 5-6 | Phase 1 (Part 2) + **Epic 2.6** | DeBank + Correlation + Trust Score v1 + **Multi-CEX + Recovery** |
 | **Sprint 3** | 7-8 | Phase 2 (Part 1) + **Epic 3.1 UPDATED** | **Conditional verify (CEX API required)** + On-chain analysis |
 | **Sprint 4** | 9-10 | Phase 2 (Part 2) | Dual-signature linking + No-honeypot |
 | **Sprint 5** | 11-12 | Phase 3 | Campaign API + Trust Score endpoint |
-| **Sprint 6** | 13-14 | Phase 5 + **Epic 6.6** | /verify/vault + /verify/grind UI + **Recovery UI** |
+| **Sprint 6** | 13-14 | Phase 4 + Phase 5 | Auth UI + /verify/vault + /verify/grind + **Recovery UI** |
 | **Sprint 7** | 15-16 | Phase 4 | Fingerprinting + Graph clustering |
 | **Sprint 8** | 17-18 | Phase 5 | Partner Portal + UX improvements |
 | **Sprint 9** | 19-20 | Phase 6 | Tests + Observability + Security audit |
@@ -336,23 +410,31 @@ GET /api/partners/analytics
 ## 📌 Immediate Next Steps (Week 1)
 
 1. **Create route structure**
+   - `src/app/sign-in/page.tsx`
+   - `src/app/sign-up/page.tsx`
+   - `src/app/settings/security/page.tsx`
    - `src/app/verify/vault/page.tsx`
    - `src/app/verify/grind/page.tsx`
    - `src/app/partner/page.tsx`
 
 2. **Implement API client modules**
+   - `src/api/authApi.ts`, `src/api/securityApi.ts`
    - `src/api/vaultApi.ts`, `src/api/grindApi.ts`, `src/api/partnerApi.ts`
    - Add wrappers for recovery endpoints
 
-3. **Build Vault verification UI**
+3. **Build Auth + 2FA UI**
+   - Sign-in (Google + wallet) + email code sign-up
+   - 2FA setup + step-up prompt modal
+
+4. **Build Vault verification UI**
    - `VaultConnect` + `CEXAuthModal`
    - CEX list sourced from `detected_cex_sources`
 
-4. **Build Grind verification UI**
+5. **Build Grind verification UI**
    - `GrindAnalyzer`, `GrindWarnings`, `DualSignatureFlow`
    - CEX selection aligned with backend sources
 
-5. **Wire Recovery UI**
+6. **Wire Recovery UI**
    - `VaultCompromisedAlert` + `RecoveryWizard`
    - Connect to recovery endpoints
 
@@ -374,6 +456,10 @@ GET /api/partners/analytics
 ## ✅ Success Criteria (Definition of Done)
 
 ### MVP Core (Phase 0-2):
+- [ ] Sign-up via email code only (no Google sign-up)
+- [ ] Sign-in via Google/wallet for linked accounts
+- [ ] 2FA required for vault/burner/social/security actions
+- [ ] Grind requires at least 1 on-chain deposit before verification
 - [ ] Vault verification works end-to-end
 - [ ] **First 3 deposits stored** as fallback
 - [ ] Grind verification **requires CEX API** (no auto-approve)
@@ -448,6 +534,22 @@ safedrop-front-main/src/
 ## ⚠️ Dependencies
 
 ### From Backend (must be ready):
+- `POST /api/auth/email/start`
+- `POST /api/auth/email/verify`
+- `POST /api/auth/oauth/google`
+- `POST /api/auth/wallet/challenge`
+- `POST /api/auth/wallet/verify`
+- `POST /api/auth/link/google`
+- `POST /api/auth/link/wallet`
+- `POST /api/auth/2fa/setup`
+- `POST /api/auth/2fa/verify`
+- `POST /api/auth/2fa/disable`
+- `POST /api/auth/passkey/register/options`
+- `POST /api/auth/passkey/register/verify`
+- `POST /api/auth/passkey/authenticate/options`
+- `POST /api/auth/passkey/authenticate/verify`
+- `POST /api/socials/link`
+- `POST /api/socials/unlink`
 - `POST /api/wallets/verify-vault`
 - `POST /api/wallets/verify-grind` (with CEX API requirement)
 - `POST /api/wallets/link-grind`
