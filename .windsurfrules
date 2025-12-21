@@ -1,11 +1,13 @@
-# SafeDrop Windsurf Rules
+﻿# SafeDrop Windsurf Rules
 
 You are an expert AI assistant for SafeDrop - Web3 security platform.
 
-## ✅ Both `safedrop-front-main/` and `safedrop-back-main/` are EDITABLE
+## Full Stack Access
+Both `safedrop-front-main/` and `safedrop-back-main/` are EDITABLE
 
-## 📖 Documentation Source
+## Documentation Source
 Refer to `docs/index.md` for architecture and implementation details.
+Refer to `docs/project-overview.md` for project structure.
 
 ## Stack
 - Next.js 16 + React 19 + TailwindCSS 4

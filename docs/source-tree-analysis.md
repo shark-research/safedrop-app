@@ -1,4 +1,4 @@
-# Source Tree Analysis
+﻿# Source Tree Analysis
 
 ## Directory Structure Overview
 
@@ -10,19 +10,23 @@ Next.js 16 application using App Router.
 
 ```
 safedrop-front-main/
-├── public/              # Static assets (images, icons)
-├── src/
-│   ├── api/             # API client functions (calls backend)
-│   ├── app/             # Application routes (Next.js App Router)
-│   ├── components/      # Reusable React components
-│   └── providers/       # Global providers (Web3Modal, Theme)
-├── .env                 # Environment variables
-├── next.config.ts       # Next.js configuration
-├── package.json         # Dependencies and scripts
-└── tsconfig.json        # TypeScript configuration
+  public/              # Static assets
+  src/
+    api/               # API client functions
+      index.ts
+    app/               # Application routes (Next.js App Router)
+      layout.tsx
+      page.tsx
+      globals.css
+      favicon.ico
+    components/        # Reusable React components
+      button/
+      info/
+      ui/
+    providers/         # Global providers (Web3, Solana)
+      SolWalletProvider.tsx
+      Web3Provider.tsx
 ```
-
-Planned: backend will add src/auth for email-code sign-up, wallet/Google sign-in, sessions, and 2FA.
 
 ### 2. Backend (`safedrop-back-main/`)
 
@@ -30,36 +34,28 @@ NestJS 11 application tailored for exchange verification.
 
 ```
 safedrop-back-main/
-├── src/
-│   ├── verification/    # Core logic (Controller, Service, DTOs)
-│   │   ├── dto/         # Data Transfer Objects
-│   │   ├── verification.controller.ts # Wallet verification endpoints (planned /api/wallets/verify-vault, /api/wallets/verify-grind)
-│   │   └── verification.service.ts    # Router logic
-│   ├── binance/         # Binance integration
-│   ├── bingx/           # BingX integration
-│   ├── bitget/          # Bitget integration
-│   ├── bybit/           # Bybit integration
-│   ├── gate/            # Gate.io integration
-│   ├── kraken/          # Kraken integration
-│   ├── kucoin/          # KuCoin integration
-│   ├── mexc/            # MEXC integration
-│   ├── okx/             # OKX integration
-│   ├── logger/          # Custom logging service
-│   ├── app.module.ts    # Root application module
-│   └── main.ts          # Application entry point
-├── package.json         # Dependencies
-└── tsconfig.json        # TypeScript configuration
+  src/
+    auth/                # Email code, OAuth, wallet, 2FA
+    verification/        # Vault + Grind verification
+    blockchain/          # EVM + Solana history lookups
+    database/            # Postgres module
+    project-integration/ # Partner webhooks
+    [exchange]/          # Exchange modules
+    common/
+    logger/
+  package.json           # Dependencies
+  tsconfig.json          # TypeScript configuration
 ```
 
 ## Critical Files
 
 - **Entry Points**:
-  - Frontend: `safedrop-front-main/src/app/layout.tsx` (implied)
+  - Frontend: `safedrop-front-main/src/app/layout.tsx`
   - Backend: `safedrop-back-main/src/main.ts`
 
 - **Configuration**:
-  - Frontend: `next.config.ts`, `tailwind.config.ts` (implied)
-  - Backend: `.env` (managed locally)
+  - Frontend: `safedrop-front-main/next.config.ts`, `safedrop-front-main/tailwind.config.ts`
+  - Backend: `safedrop-back-main/.env` (managed locally)
 
 - **Integration**:
-  - Frontend API calls: Located in `safedrop-front-main/src/api/` matches backend endpoints.
+  - Frontend API calls: `safedrop-front-main/src/api/` align with `/api/auth/*` and `/api/wallets/*`

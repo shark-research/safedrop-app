@@ -1,4 +1,4 @@
-# Development Guide
+﻿# Development Guide
 
 > **Getting started with SafeDrop development**
 
@@ -87,27 +87,32 @@ EMAIL_FROM=SafeDrop <no-reply@example.com>
 
 ```
 safedrop-app/
-??? safedrop-front-main/
-?   ??? src/
-?   ?   ??? app/
-?   ?   ?   ??? sign-in/page.tsx
-?   ?   ?   ??? sign-up/page.tsx
-?   ?   ?   ??? verify/vault/page.tsx
-?   ?   ?   ??? verify/grind/page.tsx
-?   ?   ?   ??? partner/page.tsx
-?   ?   ??? api/
-?   ?   ??? components/
-?   ??? package.json
-??? safedrop-back-main/
-?   ??? src/
-?   ?   ??? auth/
-?   ?   ??? verification/
-?   ?   ??? blockchain/
-?   ?   ??? database/
-?   ?   ??? project-integration/
-?   ??? package.json
-??? docs/
+  safedrop-front-main/
+    src/
+      app/
+        layout.tsx
+        page.tsx
+        globals.css
+      api/
+        index.ts
+      components/
+      providers/
+  safedrop-back-main/
+    src/
+      auth/
+      verification/
+      blockchain/
+      database/
+      project-integration/
+  docs/
 ```
+
+### Planned Routes (per `frontend_development_plan.md`)
+- `src/app/sign-in/page.tsx`
+- `src/app/sign-up/page.tsx`
+- `src/app/verify/vault/page.tsx`
+- `src/app/verify/grind/page.tsx`
+- `src/app/partner/page.tsx`
 
 ---
 
@@ -184,7 +189,7 @@ const verifyVault = async (payload) => {
 
 ## Common Issues
 
-### "Module not found"
+### Module not found
 ```bash
 rm -rf node_modules && npm install
 ```

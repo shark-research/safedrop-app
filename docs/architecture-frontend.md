@@ -1,7 +1,7 @@
-# Architecture - Frontend (`safedrop-front-main`)
+﻿# Architecture - Frontend (`safedrop-front-main`)
 
 ## Executive Summary
-The frontend is a **Next.js 16** application delivering a modern, responsive interface for the SafeDrop platform. It handles user authentication via Web3 wallets (EVM & Solana), interacts with the backend verification API, and guides users through the exchange verification process.
+The frontend is a Next.js 16 application that drives the SafeDrop auth and verification flows. It supports email-code sign-up, wallet and OAuth sign-in for linked accounts, 2FA onboarding, Vault/Grind verification with multi-CEX fallback, recovery, and partner analytics UI. It integrates with the backend via a typed API client layer and guides users through dual-signature linking.
 
 ## Technology Stack
 
@@ -23,20 +23,26 @@ The frontend is a **Next.js 16** application delivering a modern, responsive int
 
 ## Core Modules
 
-### 1. Web3 Integration
-Handles wallet connections for both ecosystems:
-- **EVM**: Configured via Wagmi/RainbowKit.
-- **Solana**: Configured via `@solana/wallet-adapter-react`.
+### 1. Auth + Security UI (Planned)
+- Sign-in/sign-up routes and account linking screens.
+- 2FA setup and step-up prompts for sensitive actions.
+- Socials and passkeys (WebAuthn) enrollment.
 
-### 2. API Layer (`src/api`)
-Encapsulates communication with `safedrop-back-main`.
-- `verification`: Posts signed payloads to backend checks.
+### 2. Verification Flows (Planned)
+- Vault verification: signature challenge, CEX API, first 3 deposits.
+- Grind verification: on-chain analysis, CEX selection, dual signatures.
+- Recovery flow: compromised vault alert and relink wizard.
 
-### 3. UI System (`src/components`)
-Reusable atomic components using TailwindCSS.
+### 3. Partner Portal (Planned)
+- Campaign list and creation.
+- Trust score lookup and analytics dashboard.
+
+### 4. API Layer (`src/api`)
+- Planned modules: `authApi`, `securityApi`, `vaultApi`, `grindApi`, `partnerApi`.
+- Centralizes retries, errors, and response typing.
+
+### 5. UI System (`src/components`)
+Reusable components (buttons, modals, motion utilities).
 
 ## Development Workflow
-(See `development-guide.md` - _To be generated_)
-```bash
-npm run dev
-```
+See `docs/development-guide.md`.
