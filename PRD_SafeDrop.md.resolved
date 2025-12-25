@@ -9,7 +9,7 @@
 
 ---
 
-## Current User Flow (Updated)
+## User Flow 
 1. Sign in via Google or wallet (linked accounts only). If not linked, sign up via email code.
 2. Sign up via email code only (no Google sign-up), then set up 2FA immediately.
 3. 2FA required for link/add/change actions (vault/burner/social/security), not required for login.
